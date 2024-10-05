@@ -2,30 +2,39 @@ package com.group2.restaurantorderingwebapp.exception;
 
 import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // handle specific exception
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleResourceNotFoundException(ResourceNotFoundException exception, WebRequest webRequest)
+    {
+        ApiResponse apiResponse = ApiResponse.error(404, exception.getMessage());
+        webRequest.getDescription(false);
+        return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<?> appException(AppException appException) {
-        ErrorCode e = appException.getErrorCode();
-        return ResponseEntity.status(e.getHttpStatus()).body(ApiResponse.error(e.getCode(), e.getMessage()));
+    public ResponseEntity<ApiResponse> handleBlogAPIException(AppException exception,WebRequest webRequest){
+        ApiResponse apiResponse = ApiResponse.error(exception.getErrorCode().getCode(), exception.getErrorCode().getMessage());
+        webRequest.getDescription(false);
+        return new ResponseEntity<>(apiResponse,exception.getErrorCode().getStatus());
+
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ApiResponse notValidException(MethodArgumentNotValidException e) {
-        return ApiResponse.error(400, "Please fulfil the form!");
-    }
-
+    // global exception
     @ExceptionHandler(Exception.class)
-    public ApiResponse exception(Exception exception) {
-        log.error(exception.getMessage());
-        return ApiResponse.error(400, exception.getMessage());
+    public ResponseEntity<ApiResponse> handleGlobalException(Exception exception,WebRequest webRequest){
+        ApiResponse apiResponse = ApiResponse.error(500, exception.getMessage());
+        webRequest.getDescription(false);
+        return new ResponseEntity<>(apiResponse,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

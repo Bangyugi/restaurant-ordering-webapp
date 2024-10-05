@@ -15,7 +15,7 @@ public class ApiResponse {
     Object data;
 
     public static ApiResponse success(Object data){
-        return new ApiResponse(1000, null ,data);
+        return new ApiResponse(200, null ,data);
     }
 
     public static ApiResponse error (int code, String message){
