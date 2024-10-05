@@ -31,5 +31,5 @@ public enum ErrorCode {
 
     private int code;
     private String message;
-    private HttpStatus httpStatus;
+    private HttpStatus status;
 }
