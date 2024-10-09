@@ -16,4 +16,7 @@ public class DishResponse {
     private String description;
     private String price;
     private String status;
+    private String ingredient;
+    private String portion;
+    private String cookingTime;
 }

@@ -5,6 +5,7 @@ import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.service.DishService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +46,6 @@ public class DishController {
         ApiResponse apiResponse = ApiResponse.success(dishService.deleteDish(id));
         return new ResponseEntity<>(apiResponse,HttpStatus.OK);
     }
+
 
 }
