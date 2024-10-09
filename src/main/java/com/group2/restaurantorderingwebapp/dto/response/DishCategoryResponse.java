@@ -18,5 +18,8 @@ public class DishCategoryResponse {
     private String description;
     private String price;
     private String status;
+    private String ingredient;
+    private String portion;
+    private String cookingTime;
     private Set<CategoryResponse> categories;
 }

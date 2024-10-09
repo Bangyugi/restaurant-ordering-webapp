@@ -24,7 +24,12 @@ public class Dish extends BaseEntity{
     private String dishName;
     @Column(nullable = false)
     private String image;
+    @Column(columnDefinition = "TEXT",length = 2500)
     private String description;
+    @Column(columnDefinition = "TEXT")
+    private String ingredient;
+    private String portion;
+    private String cookingTime;
     @Column(nullable = false)
     private String price;
     private String status;

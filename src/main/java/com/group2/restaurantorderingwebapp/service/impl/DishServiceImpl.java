@@ -1,9 +1,9 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.DishRequest;
-import com.group2.restaurantorderingwebapp.dto.response.CategoryDishResponse;
 import com.group2.restaurantorderingwebapp.dto.response.CategoryResponse;
 import com.group2.restaurantorderingwebapp.dto.response.DishCategoryResponse;
+import com.group2.restaurantorderingwebapp.dto.response.DishResponse;
 import com.group2.restaurantorderingwebapp.entity.Category;
 import com.group2.restaurantorderingwebapp.entity.Dish;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
@@ -12,6 +12,8 @@ import com.group2.restaurantorderingwebapp.repository.DishRepository;
 import com.group2.restaurantorderingwebapp.service.DishService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -44,7 +46,6 @@ public class DishServiceImpl implements DishService {
     @Override
     public DishCategoryResponse getDishById(Long id){
         Dish dish = dishRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Dish","id",id));
-
         DishCategoryResponse dishCategoryResponse = modelMapper.map(dish, DishCategoryResponse.class);
         dishCategoryResponse.setCategories(dish.getCategories().stream().map(result->modelMapper.map(result, CategoryResponse.class)).collect(Collectors.toSet()));
         return dishCategoryResponse;
@@ -82,6 +83,8 @@ public class DishServiceImpl implements DishService {
         dishRepository.delete(dish);
         return "Dish with id: " +id+ " was deleted successfully";
     }
+
+
 }
 
 
