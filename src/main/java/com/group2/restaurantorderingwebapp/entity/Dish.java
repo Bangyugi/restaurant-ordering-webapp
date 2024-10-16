@@ -22,7 +22,7 @@ public class Dish extends BaseEntity{
     private Long id;
     @Column(nullable = false)
     private String dishName;
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT",length = 2500,nullable = false)
     private String image;
     @Column(columnDefinition = "TEXT",length = 2500)
     private String description;
