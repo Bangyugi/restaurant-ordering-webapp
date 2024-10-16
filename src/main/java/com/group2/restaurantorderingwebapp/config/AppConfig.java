@@ -11,7 +11,7 @@ public class AppConfig  implements WebMvcConfigurer {
 
         registry.addMapping("/**")
                 .allowCredentials(true)
-                .allowedOrigins("http://localhost:5173")
+                .allowedOrigins("http://localhost:5173","https://restaurant-ba062.web.app","http://localhost:5174","http://localhost:5175")
                 .allowedMethods("*")
                 .allowedHeaders("*");
 

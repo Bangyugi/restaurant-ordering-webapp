@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloWorldController {
     @GetMapping()
     public ResponseEntity<ApiResponse> sayHello(){
-        ApiResponse apiResponse = ApiResponse.success("Hello world version 0.9");
+        ApiResponse apiResponse = ApiResponse.success("Hello world \nVersion: 0.1.0 RELEASE \n Message: update CORS API");
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 }
