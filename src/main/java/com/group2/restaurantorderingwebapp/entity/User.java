@@ -22,7 +22,9 @@ public class User extends BaseEntity{
     private Long id;
 
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,nullable = false)
-    private String fullName;
+    private String firstName;
+    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,nullable = false)
+    private String lastName;
     @Column(nullable = false)
     private String password;
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,unique = true ,nullable = false)

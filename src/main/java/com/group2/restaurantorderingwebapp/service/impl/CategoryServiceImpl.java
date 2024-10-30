@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,11 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDishResponse getCategoryById(Long id){
         Category category = categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Category","id",id));
         CategoryDishResponse categoryDishResponse = modelMapper.map(category, CategoryDishResponse.class);
-        categoryDishResponse.setDishes(category.getDishes().stream().map(result->modelMapper.map(result, DishResponse.class)).collect(Collectors.toSet()));
+        List<DishResponse> dishResponses = category.getDishes().stream()
+                .map(result->modelMapper.map(result,DishResponse.class))
+                .sorted(Comparator.comparing(DishResponse::getDishName))
+                .toList();
+        categoryDishResponse.setDishes(dishResponses);
         return categoryDishResponse;
     }
 
@@ -41,8 +46,11 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categories = categoryRepository.findAll();
         List<CategoryDishResponse> categoryDishResponses = new ArrayList<>();
         for(Category category:categories){
+            List<DishResponse> dishResponses = category.getDishes().stream()
+                    .map(result->modelMapper.map(result, DishResponse.class))
+                    .sorted(Comparator.comparing(DishResponse::getDishName)).toList();
             CategoryDishResponse categoryDishResponse = modelMapper.map(category, CategoryDishResponse.class);
-            categoryDishResponse.setDishes(category.getDishes().stream().map(result->modelMapper.map(result, DishResponse.class)).collect(Collectors.toSet()));
+            categoryDishResponse.setDishes(dishResponses);
             categoryDishResponses.add(categoryDishResponse);
         }
         return  categoryDishResponses;
@@ -52,7 +60,11 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDishResponse getCategoryByCategoryName(String categoryName){
         Category category = categoryRepository.findByCategoryName(categoryName).orElseThrow(()->new ResourceNotFoundException("Category","name",categoryName));
         CategoryDishResponse categoryDishResponse = modelMapper.map(category, CategoryDishResponse.class);
-        categoryDishResponse.setDishes(category.getDishes().stream().map(result->modelMapper.map(result, DishResponse.class)).collect(Collectors.toSet()));
+        List<DishResponse> dishResponses = category.getDishes().stream()
+                        .map(result->modelMapper.map(result,DishResponse.class))
+                                .sorted(Comparator.comparing(DishResponse::getDishName))
+                                        .toList();
+        categoryDishResponse.setDishes(dishResponses);
         return categoryDishResponse;
     }
 

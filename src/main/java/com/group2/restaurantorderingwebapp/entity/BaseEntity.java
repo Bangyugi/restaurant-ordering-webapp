@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,10 +19,13 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public class BaseEntity {
     @CreationTimestamp
+    @JsonIgnore
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime CreatAt;
+    private LocalDateTime CreateAt;
+
     @UpdateTimestamp
+    @JsonIgnore
     @Column(name = "updated_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime UpdateAt;
