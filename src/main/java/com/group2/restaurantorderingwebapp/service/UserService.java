@@ -1,19 +1,23 @@
 package com.group2.restaurantorderingwebapp.service;
 
+import com.group2.restaurantorderingwebapp.dto.request.UserRequest;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 import com.group2.restaurantorderingwebapp.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface UserService {
-    User createUser(UserResponse userResponse);
+
+
+    UserResponse createUser(UserRequest userRequest);
 
     UserResponse getUserById(Long id);
 
-    Page<UserResponse> getAllUser(Pageable pageable);
+    List<UserResponse> getAllUser(int pageNo, int pageSize, String sortBy, String sortDir);
 
-    User updateUser(Long id, UserResponse userResponse);
+    UserResponse updateUser(Long id, UserRequest userRequest);
 
     String deleteUser(Long id);
-
 }

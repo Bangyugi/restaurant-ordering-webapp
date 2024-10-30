@@ -53,14 +53,14 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public List<DishCategoryResponse> getAllDish(){
-       List<Dish> dishes = dishRepository.findAll();
-       List<DishCategoryResponse> dishCategoryRespons = new ArrayList<>();
+       List<Dish> dishes = dishRepository.findAllByOrderByDishNameAsc();
+       List<DishCategoryResponse> dishCategoryResponses = new ArrayList<>();
        for(Dish dish: dishes){
            DishCategoryResponse dishCategoryResponse = modelMapper.map(dish, DishCategoryResponse.class);
            dishCategoryResponse.setCategories(dish.getCategories().stream().map(result->modelMapper.map(result, CategoryResponse.class)).collect(Collectors.toSet()));
-           dishCategoryRespons.add(dishCategoryResponse);
+           dishCategoryResponses.add(dishCategoryResponse);
        }
-       return dishCategoryRespons;
+       return dishCategoryResponses;
     }
 
     @Override

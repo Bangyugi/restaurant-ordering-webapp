@@ -1,17 +1,27 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
+import com.group2.restaurantorderingwebapp.dto.request.UserRequest;
+import com.group2.restaurantorderingwebapp.dto.response.RoleResponse;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
+import com.group2.restaurantorderingwebapp.entity.Role;
 import com.group2.restaurantorderingwebapp.entity.User;
+import com.group2.restaurantorderingwebapp.exception.AppException;
+import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
+import com.group2.restaurantorderingwebapp.repository.RoleRepository;
 import com.group2.restaurantorderingwebapp.repository.UserRepository;
 import com.group2.restaurantorderingwebapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,16 +29,21 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final RoleRepository roleRepository;
 
     @Override
-    public User createUser(UserResponse userResponse) {
-        User user = modelMapper.map(userResponse, User.class);
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        user.setPassword(passwordEncoder.encode(userResponse.getPassword()));
+    public UserResponse createUser(UserRequest userRequest) {
+        User user = modelMapper.map(userRequest, User.class);
+        if (userRepository.existsByEmail(userRequest.getEmail()))
+        {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
         user.setStatus(true);
-        // set role -> weekend:v
-        userRepository.save(user);
-        return user;
+        Set<Role> roles = new HashSet<>();
+        Role role = roleRepository.findByRole("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role","role's name","ROLE_USER"));
+        roles.add(role);
+        user.setRoles(roles);
+        return modelMapper.map(userRepository.save(user),UserResponse.class);
     }
 
     @Override
@@ -38,23 +53,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserResponse> getAllUser(Pageable pageable) {
-        return userRepository.findAll(pageable).map(x -> modelMapper.map(x, UserResponse.class));
+    public List<UserResponse> getAllUser(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())? Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo,pageSize,sort);
+        return userRepository.findAll(pageable).stream().map(result -> modelMapper.map(result,UserResponse.class)).collect(Collectors.toList());
     }
 
     @Override
-    public User updateUser(Long id, UserResponse userResponse) {
+    public UserResponse updateUser(Long id, UserRequest userRequest) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
-        modelMapper.map(userResponse, user);
-        userRepository.save(user);
-        return user;
+        modelMapper.map(userRequest, user);
+        return modelMapper.map(userRepository.save(user),UserResponse.class);
     }
 
     @Override
     public String deleteUser(Long id) {
-        userRepository
-                .findById(id)
-                .ifPresent(userRepository::delete);
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
         return "User with id: " +id+ " was deleted successfully";
     }
 }
