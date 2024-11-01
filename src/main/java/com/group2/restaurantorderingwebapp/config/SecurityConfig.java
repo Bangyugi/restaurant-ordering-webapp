@@ -1,10 +1,13 @@
 package com.group2.restaurantorderingwebapp.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.security.JwtAuthenticationEntryPoint;
 import com.group2.restaurantorderingwebapp.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -54,13 +57,24 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         configure ->
                                 configure
-                                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/api/dishes/**").permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
                                         .requestMatchers("/api/auth/**").permitAll()
+                                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                                        .requestMatchers("/api/role/**").hasRole("ADMIN")
                                         .anyRequest().authenticated()
 
 
-                ).exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint)
-                ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                ) .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(authenticationEntryPoint)
+//                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+//                            ApiResponse apiResponse = ApiResponse.error(403, "Access is denied");
+//                            response.setStatus(HttpStatus.FORBIDDEN.value());
+//                            response.setContentType("application/json");
+//                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+//                        })
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

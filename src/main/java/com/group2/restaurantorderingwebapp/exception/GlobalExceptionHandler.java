@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiResponse> handleBlogAPIException(AppException exception,WebRequest webRequest){
+    public ResponseEntity<ApiResponse> handleAppException(AppException exception,WebRequest webRequest){
         ApiResponse apiResponse = ApiResponse.error(exception.getErrorCode().getCode(), exception.getErrorCode().getMessage());
         webRequest.getDescription(false);
         return new ResponseEntity<>(apiResponse,exception.getErrorCode().getStatus());
@@ -41,11 +41,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorDetails> handleAccessDeniedException(AccessDeniedException exception,
-                                                                    WebRequest webRequest){
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), exception.getMessage(),
-                webRequest.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
+    public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception, WebRequest webRequest) {
+        ApiResponse apiResponse = ApiResponse.error(403, "Access is denied: " + exception.getMessage());
+        return new ResponseEntity<>(apiResponse, HttpStatus.FORBIDDEN);
     }
 
 }

@@ -26,7 +26,6 @@ public class UserController {
     }
 
     @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> getAllUser(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
