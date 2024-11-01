@@ -27,7 +27,11 @@ public enum ErrorCode {
 
     COMMENT_NOT_EXISTED(404, "Comment does not exist", HttpStatus.NOT_FOUND),
 
-    EMAIL_NOT_FOUND(404, "Email not found", HttpStatus.NOT_FOUND);
+    EMAIL_EXISTED(400, "Email already exists", HttpStatus.BAD_REQUEST),
+    EMAIL_NOT_FOUND(404, "Email not found", HttpStatus.NOT_FOUND),
+
+   PHONE_EXISTED(400, "Phone already exists", HttpStatus.BAD_REQUEST);
+
 
     private int code;
     private String message;
