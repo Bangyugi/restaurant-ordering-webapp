@@ -16,10 +16,10 @@ public class DishCategoryResponse {
     private String dishName;
     private String image;
     private String description;
-    private String price;
+    private Double price;
     private String status;
     private String ingredient;
     private String portion;
-    private String cookingTime;
+    private Long cookingTime;
     private Set<CategoryResponse> categories;
 }

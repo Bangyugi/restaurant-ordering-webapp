@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,13 +16,10 @@ import lombok.Setter;
 @Table (name = "tables")
 public class Position {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private int amount;
-    @Column(columnDefinition = "TINYINT")
-    private boolean status;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    private String name;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @OneToMany(mappedBy = "position", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<Order> orders;
 }

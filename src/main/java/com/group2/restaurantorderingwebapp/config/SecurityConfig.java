@@ -53,6 +53,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(httpSecurityCorsConfigurer -> corsFilter())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         configure ->
@@ -60,6 +61,7 @@ public class SecurityConfig {
                                         .requestMatchers(HttpMethod.GET, "/api/dishes/**").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
                                         .requestMatchers("/api/auth/**").permitAll()
+                                        .requestMatchers(HttpMethod.GET,"api/users/{id}").permitAll()
                                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                                         .requestMatchers("/api/role/**").hasRole("ADMIN")
                                         .anyRequest().authenticated()
@@ -83,15 +85,15 @@ public class SecurityConfig {
 
 
 
-//    @Bean
-//    public CorsFilter corsFilter() {
-//        CorsConfiguration corsConfiguration = new CorsConfiguration();
-//        corsConfiguration.addAllowedOrigin("*");
-//        corsConfiguration.addAllowedMethod("*");
-//        corsConfiguration.addAllowedHeader("*");
-//        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-//        urlBasedCorsConfigurationSource.registerCorsConfiguration("http://localhost:5173", corsConfiguration);
-//
-//        return new CorsFilter(urlBasedCorsConfigurationSource);
-//    }
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+
+        return new CorsFilter(urlBasedCorsConfigurationSource);
+    }
 }

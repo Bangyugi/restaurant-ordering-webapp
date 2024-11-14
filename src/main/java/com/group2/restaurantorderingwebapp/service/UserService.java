@@ -15,6 +15,8 @@ public interface UserService {
 
     UserResponse getUserById(Long id);
 
+    UserResponse getUserByUsername(String username);
+
     List<UserResponse> getAllUser(int pageNo, int pageSize, String sortBy, String sortDir);
 
     UserResponse updateUser(Long id, UserRequest userRequest);

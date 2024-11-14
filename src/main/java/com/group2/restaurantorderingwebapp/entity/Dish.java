@@ -29,9 +29,9 @@ public class Dish extends BaseEntity{
     @Column(columnDefinition = "TEXT")
     private String ingredient;
     private String portion;
-    private String cookingTime;
+    private Long cookingTime;
     @Column(nullable = false)
-    private String price;
+    private Double price;
     private String status;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
@@ -53,11 +53,6 @@ public class Dish extends BaseEntity{
     @OneToMany(mappedBy = "dish",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Ranking> rankings;
 
-    @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
-    @JoinTable(
-            name = "order_detail",
-            joinColumns =  @JoinColumn(name = "dish_id"),
-            inverseJoinColumns = @JoinColumn(name = "order_id")
-    )
-    private Set<Order> orders;
+    @OneToMany(mappedBy = "dish",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<OrderItem> orderItem;
 }

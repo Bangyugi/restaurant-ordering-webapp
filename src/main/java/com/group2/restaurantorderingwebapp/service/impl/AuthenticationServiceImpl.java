@@ -37,7 +37,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String login(LoginRequest loginRequest){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(), loginRequest.getPassword()
+                loginRequest.getUsername(), loginRequest.getPassword()
         ));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
@@ -46,10 +46,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public String register(RegisterRequest registerRequest){
-        if (userRepository.existsByEmail(registerRequest.getEmail())){
+        if (!registerRequest.getEmail().isEmpty() && userRepository.existsByEmail(registerRequest.getEmail())){
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
-        if (userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())){
+        if (!registerRequest.getPhoneNumber().isEmpty() && userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())){
             throw new AppException(ErrorCode.PHONE_EXISTED);
         }
         User user = modelMapper.map(registerRequest, User.class);

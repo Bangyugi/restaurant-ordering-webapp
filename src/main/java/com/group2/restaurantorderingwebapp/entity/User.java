@@ -2,10 +2,7 @@ package com.group2.restaurantorderingwebapp.entity;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -14,6 +11,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity{
@@ -27,7 +25,7 @@ public class User extends BaseEntity{
     private String lastName;
     @Column(nullable = false)
     private String password;
-    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,unique = true ,nullable = false)
+    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
     private String email;
     private String address;
     private String phoneNumber;
