@@ -35,13 +35,17 @@ public class UserController {
         ApiResponse apiResponse = ApiResponse.success(useService.getAllUser(pageNo,pageSize,sortBy,sortDir));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getUserById(@PathVariable Long id){
+      @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable("id") Long id){
         ApiResponse apiResponse = ApiResponse.success(useService.getUserById(id));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+//    @GetMapping("/username/{username}")
+//    public ResponseEntity<ApiResponse> getUserByUsername(@PathVariable("username") String username){
+//        ApiResponse apiResponse = ApiResponse.success(useService.getUserByUsername(username));
+//        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+//    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest){

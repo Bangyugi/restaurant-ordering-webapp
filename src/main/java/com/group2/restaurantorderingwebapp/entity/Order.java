@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -20,10 +21,8 @@ public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int quantity;
-    private double timeServing;
-    private long totalPrice;
-    private int amount;
+    private Long timeServing;
+    private Double totalPrice;
 
     @Column(columnDefinition = "TINYINT")
     private boolean status;
@@ -32,11 +31,10 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(fetch = FetchType.LAZY,cascade =  {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
-    @JoinTable(
-            name = "order_detail",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "dish_id")
-    )
-    private Set<Dish> dishes;
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<OrderItem> orderItems = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
+    @JoinColumn(name = "position_id")
+    private Position position;
 }

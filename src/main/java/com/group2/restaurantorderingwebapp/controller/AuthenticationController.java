@@ -4,6 +4,7 @@ import com.group2.restaurantorderingwebapp.dto.request.LoginRequest;
 import com.group2.restaurantorderingwebapp.dto.request.RegisterRequest;
 import com.group2.restaurantorderingwebapp.dto.response.JwtAuthResponse;
 import com.group2.restaurantorderingwebapp.service.AuthenticationService;
+import com.group2.restaurantorderingwebapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @PostMapping(value = {"/login","/signin"})
     public ResponseEntity<JwtAuthResponse>login (@RequestBody LoginRequest loginRequest){
         String token = authenticationService.login(loginRequest);
         JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
         jwtAuthResponse.setAccessToken(token);
+        jwtAuthResponse.setUser(userService.getUserByUsername(loginRequest.getUsername()));
         return ResponseEntity.ok(jwtAuthResponse);
     }
 

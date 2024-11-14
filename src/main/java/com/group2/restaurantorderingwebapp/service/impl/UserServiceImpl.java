@@ -1,7 +1,6 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.UserRequest;
-import com.group2.restaurantorderingwebapp.dto.response.RoleResponse;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 import com.group2.restaurantorderingwebapp.entity.Role;
 import com.group2.restaurantorderingwebapp.entity.User;
@@ -49,6 +48,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        return modelMapper.map(user, UserResponse.class);
+    }
+
+    @Override
+    public UserResponse getUserByUsername(String username) {
+        User user = userRepository.findByEmailOrPhoneNumber(username,username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         return modelMapper.map(user, UserResponse.class);
     }
 
