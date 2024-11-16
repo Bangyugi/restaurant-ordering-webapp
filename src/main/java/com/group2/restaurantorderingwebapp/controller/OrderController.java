@@ -48,7 +48,7 @@ public class OrderController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteOrder(@PathVariable Long id) {
         ApiResponse apiResponse = ApiResponse.success(orderService.deleteOrder(id));
-        return new ResponseEntity<>(apiResponse, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
 }
