@@ -20,6 +20,6 @@ public class DishRequest {
     private String status;
     private String ingredient;
     private String portion;
-    private String cookingTime;
+    private Long cookingTime;
     private Set<String> categories;
 }
