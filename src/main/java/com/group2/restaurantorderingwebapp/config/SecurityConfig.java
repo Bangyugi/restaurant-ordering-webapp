@@ -58,13 +58,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         configure ->
                                 configure
-                                        .requestMatchers(HttpMethod.GET, "/api/dishes/**").permitAll()
-                                        .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
-                                        .requestMatchers("/api/auth/**").permitAll()
-                                        .requestMatchers(HttpMethod.GET,"api/users/{id}").permitAll()
-                                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                                        .requestMatchers("/api/role/**").hasRole("ADMIN")
-                                        .anyRequest().authenticated()
+//                                        .requestMatchers(HttpMethod.GET, "/api/dishes/**").permitAll()
+//                                        .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
+//                                        .requestMatchers("/api/auth/**").permitAll()
+//                                        .requestMatchers(HttpMethod.GET,"api/users/{id}").permitAll()
+                                        .requestMatchers("/api/users/**").hasRole("USER")
+                                        .requestMatchers("/api/role/**").hasRole("USER")
+                                        .anyRequest().permitAll()
 
 
                 ) .exceptionHandling(exceptionHandling -> exceptionHandling
