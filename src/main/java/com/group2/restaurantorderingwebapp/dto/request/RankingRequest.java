@@ -1,0 +1,20 @@
+package com.group2.restaurantorderingwebapp.dto.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class RankingRequest {
+
+    private String comment;
+    private int star;
+    private Long dishID;
+    private Long userId;
+
+
+}
