@@ -1,7 +1,6 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.UserRequest;
-import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 import com.group2.restaurantorderingwebapp.entity.Role;
@@ -15,15 +14,12 @@ import com.group2.restaurantorderingwebapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,29 +28,22 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserResponse createUser(UserRequest userRequest) {
-        User user = modelMapper.map(userRequest, User.class);
-        if (userRequest.getEmail()!=null && userRepository.existsByEmail(userRequest.getEmail())){
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
-        }
-        if (userRequest.getPhoneNumber()!=null && userRepository.existsByPhoneNumber(userRequest.getPhoneNumber())){
-            throw new AppException(ErrorCode.PHONE_EXISTED);
-        }
+    public User createGuestUser(String username) {
+
+       User user = new User();
 
 
         Set<Role> roles = new HashSet<>();
-        Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role","role's name","ROLE_USER"));
+        Role role = roleRepository.findByRoleName("ROLE_GUEST").orElseThrow(()->new ResourceNotFoundException("role","role's name","ROLE_GUEST"));
         roles.add(role);
         user.setRoles(roles);
-
-        user = userRepository.save(user);
-        String username = userRequest.getFirstName()+user.getUserId();
         user.setUsername(username);
         userRepository.save(user);
 
-        return modelMapper.map(user, UserResponse.class);
+        return user;
     }
 
     @Override
@@ -84,7 +73,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUser(Long userId, UserRequest userRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        modelMapper.map(userRequest, user);
+
+        if (userRequest.getEmail()!=null && userRepository.existsByEmail(userRequest.getEmail())){
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+        if (userRequest.getPhoneNumber()!=null && userRepository.existsByPhoneNumber(userRequest.getPhoneNumber())){
+            throw new AppException(ErrorCode.PHONE_EXISTED);
+        }
+
+       modelMapper.map(userRequest, user);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+
+        Set<Role> roles = new HashSet<>();
+        Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role", "role's name","ROLE_USER"));
+        roles.add(role);
+        user.setRoles(roles);
+
+
+        String username = userRequest.getFirstName()+userRequest.getLastName().replace(" ","");
+        user.setUsername(username);
+
         return modelMapper.map(userRepository.save(user),UserResponse.class);
     }
 

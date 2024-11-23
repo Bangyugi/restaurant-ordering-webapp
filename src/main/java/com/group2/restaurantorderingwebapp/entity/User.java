@@ -28,13 +28,13 @@ public class User extends BaseEntity  {
     private Long userId;
     @Column(columnDefinition = "TEXT" )
     private String imageUrl;
-    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,nullable = false)
+    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
     private String firstName;
-    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,nullable = false)
+    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
     private String lastName;
     @Column(columnDefinition = "varchar(50) collate 'utf8_bin'" ,unique = true)
     private String username;
-    @Column(nullable = false)
+    @Column()
     private String password;
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
     private String email;

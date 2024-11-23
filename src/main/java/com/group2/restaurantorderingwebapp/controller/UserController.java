@@ -23,11 +23,7 @@ public class UserController {
 
     private final UserService useService;
 
-    @PostMapping()
-    public ResponseEntity<ApiResponse> createUser(@Valid @RequestBody UserRequest userRequest){
-        ApiResponse apiResponse = ApiResponse.success(useService.createUser(userRequest));
-        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
-    }
+
 
     @GetMapping()
     public ResponseEntity<ApiResponse> getAllUser(

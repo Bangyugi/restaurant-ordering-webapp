@@ -5,6 +5,9 @@ import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.service.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +27,13 @@ public class OrderController {
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse> getAllOrder() {
-        ApiResponse apiResponse = ApiResponse.success(orderService.getAllOrders());
+    public ResponseEntity<ApiResponse> getAllOrder(
+            @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+            @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy",defaultValue = "orderId", required = false) String sortBy
+    ) {
+        Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
+        ApiResponse apiResponse = ApiResponse.success(orderService.getAllOrders(pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
@@ -50,6 +58,26 @@ public class OrderController {
     @DeleteMapping("/{orderId}")
     public ResponseEntity<ApiResponse> deleteOrder(@PathVariable Long orderId) {
         ApiResponse apiResponse = ApiResponse.success(orderService.deleteOrder(orderId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse> getOrderByUserId(@PathVariable("userId") Long userId,
+                                                        @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+                                                        @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
+                                                        @RequestParam(value = "sortBy",defaultValue = "orderId", required = false) String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
+        ApiResponse apiResponse = ApiResponse.success(orderService.getOrdersByUser(userId,pageable));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/position/{positionId}")
+    public ResponseEntity<ApiResponse> getOrderByPositionId(@PathVariable("positionId") Long positionId,
+                                                            @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+                                                            @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
+                                                            @RequestParam(value = "sortBy",defaultValue = "orderId", required = false) String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
+        ApiResponse apiResponse = ApiResponse.success(orderService.getOrdersByPosition(positionId,pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 

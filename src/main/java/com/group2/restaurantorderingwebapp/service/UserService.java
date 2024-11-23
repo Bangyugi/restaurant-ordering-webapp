@@ -13,7 +13,8 @@ import java.util.List;
 public interface UserService {
 
 
-    UserResponse createUser(UserRequest userRequest);
+
+    User createGuestUser(String username);
 
     UserResponse getUserById(Long id);
 

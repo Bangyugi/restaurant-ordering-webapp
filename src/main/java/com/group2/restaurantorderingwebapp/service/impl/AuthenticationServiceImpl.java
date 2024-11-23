@@ -66,7 +66,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setRoles(roles);
 
 
-        user = userRepository.save(user);
         String username = registerRequest.getFirstName()+registerRequest.getLastName().replace(" ","");
         user.setUsername(username);
 
