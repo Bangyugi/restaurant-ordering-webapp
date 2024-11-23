@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -19,16 +18,16 @@ import java.util.Set;
 public class Dish extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long dishId;
     @Column(nullable = false)
     private String dishName;
-    @Column(columnDefinition = "TEXT",length = 2500,nullable = false)
+    @Column(columnDefinition = "TEXT",nullable = false)
     private String image;
-    @Column(columnDefinition = "TEXT",length = 2500)
+    @Column(columnDefinition = "TEXT")
     private String description;
     @Column(columnDefinition = "TEXT")
     private String ingredient;
-    private String portion;
+    private int portion;
     private Long cookingTime;
     @Column(nullable = false)
     private Double price;

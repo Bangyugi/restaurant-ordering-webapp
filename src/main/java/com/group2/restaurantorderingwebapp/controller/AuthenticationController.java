@@ -5,6 +5,7 @@ import com.group2.restaurantorderingwebapp.dto.request.RegisterRequest;
 import com.group2.restaurantorderingwebapp.dto.response.JwtAuthResponse;
 import com.group2.restaurantorderingwebapp.service.AuthenticationService;
 import com.group2.restaurantorderingwebapp.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,8 @@ public class AuthenticationController {
 
     @PostMapping(value = {"/login","/signin"})
     public ResponseEntity<JwtAuthResponse>login (@RequestBody LoginRequest loginRequest){
-        String token = authenticationService.login(loginRequest);
-        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
-        jwtAuthResponse.setAccessToken(token);
-        jwtAuthResponse.setUser(userService.getUserByUsername(loginRequest.getUsername()));
+        JwtAuthResponse jwtAuthResponse = authenticationService.login(loginRequest);
+
         return ResponseEntity.ok(jwtAuthResponse);
     }
 

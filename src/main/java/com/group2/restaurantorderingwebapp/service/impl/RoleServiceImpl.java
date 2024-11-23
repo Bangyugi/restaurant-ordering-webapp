@@ -26,7 +26,13 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse getRoleByRoleName(String roleName){
-        Role role = roleRepository.findByRole(roleName).orElseThrow(()->new ResourceNotFoundException("role","role's name",roleName));
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(()->new ResourceNotFoundException("role","role's name",roleName));
+        return modelMapper.map(role,RoleResponse.class);
+    }
+
+    @Override
+    public RoleResponse getRoleById(Long roleId){
+        Role role = roleRepository.findById(roleId).orElseThrow(()->new ResourceNotFoundException("role","role's name",roleId));
         return modelMapper.map(role,RoleResponse.class);
     }
 
@@ -37,10 +43,10 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public String deleteRoleByRoleName(String roleName){
-        Role role = roleRepository.findByRole(roleName).orElseThrow(()->new ResourceNotFoundException("role","role's name",roleName));
+    public String deleteRole(Long roleId){
+        Role role = roleRepository.findById(roleId).orElseThrow(()->new ResourceNotFoundException("role","role's name",roleId));
         roleRepository.delete(role);
-        return "Role "+ roleName+" was delete successfully";
+        return "Role "+ roleId+" was delete successfully";
     }
 
 

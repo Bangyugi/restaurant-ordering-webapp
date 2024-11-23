@@ -1,21 +1,22 @@
 package com.group2.restaurantorderingwebapp.service;
 
 import com.group2.restaurantorderingwebapp.dto.request.CategoryRequest;
-import com.group2.restaurantorderingwebapp.dto.response.CategoryDishResponse;
+import com.group2.restaurantorderingwebapp.dto.response.CategoryResponse;
 
 import java.util.List;
 
 public interface CategoryService {
-    CategoryDishResponse addCategory (CategoryRequest categoryRequest);
 
-    CategoryDishResponse getCategoryById(Long id);
 
-    List<CategoryDishResponse> getAllCategory();
+    CategoryResponse addCategory(CategoryRequest categoryRequest);
 
-    CategoryDishResponse getCategoryByCategoryName(String categoryName);
+    CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest);
 
-    CategoryDishResponse updateCategory(CategoryRequest categoryRequest, Long id);
+    CategoryResponse getCategoryById(Long id);
 
+    List<CategoryResponse> getAllCategory();
 
     String deleteCategory(Long id);
+
+    List<CategoryResponse> getCategoryByCategoryName(String categoryName);
 }

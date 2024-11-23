@@ -1,6 +1,5 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
-import com.group2.restaurantorderingwebapp.entity.Order;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PositionResponse {
-    private String id;
-    private String name;
+    private Long positionId;
+    private String positionName;
     private Set<OrderResponse> orders;
 }

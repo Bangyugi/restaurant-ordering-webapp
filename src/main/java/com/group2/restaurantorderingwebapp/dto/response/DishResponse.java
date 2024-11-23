@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DishResponse {
-    private Long id;
+    private Long dishId;
     private String dishName;
     private String image;
     private String description;

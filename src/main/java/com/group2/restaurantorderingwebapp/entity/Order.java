@@ -19,7 +19,7 @@ import java.util.Set;
 public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long orderId;
 
     private Long timeServing;
     private Double totalPrice;

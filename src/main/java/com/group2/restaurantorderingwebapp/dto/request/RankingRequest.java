@@ -12,7 +12,7 @@ import lombok.Setter;
 public class RankingRequest {
 
     private String comment;
-    private int star;
+    private int rankingStars;
     private Long dishID;
     private Long userId;
 

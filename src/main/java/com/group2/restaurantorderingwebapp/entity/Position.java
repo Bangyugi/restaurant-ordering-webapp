@@ -16,9 +16,9 @@ import java.util.Set;
 @Table (name = "tables")
 public class Position {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-    private String name;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long positionId;
+    private String positionName;
 
     @OneToMany(mappedBy = "position", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Order> orders;

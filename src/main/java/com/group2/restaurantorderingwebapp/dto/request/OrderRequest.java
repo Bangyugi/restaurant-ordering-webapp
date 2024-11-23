@@ -21,5 +21,5 @@ import java.util.Set;
 public class OrderRequest {
     private Long userId;
     private Map<Long, Integer> dishQuantities;
-    private String positionId;
+    private Long positionId;
 }

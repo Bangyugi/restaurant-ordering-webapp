@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemResponse {
-
+    private Long positionId;
     private int quantity;
     private DishResponse dish;
 }

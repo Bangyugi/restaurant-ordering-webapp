@@ -45,10 +45,10 @@ public class RankingServiceImpl implements RankingService {
 
 
     @Override
-    public RankingResponse updateRanking(Long id, RankingRequest rankingRequest){
-        Ranking ranking = rankingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ranking", "id", id));
+    public RankingResponse updateRanking(Long rankingId, RankingRequest rankingRequest){
+        Ranking ranking = rankingRepository.findById(rankingId).orElseThrow(() -> new ResourceNotFoundException("Ranking", "id", rankingId));
         ranking.setComment(rankingRequest.getComment());
-        ranking.setStar(rankingRequest.getStar());
+        ranking.setRankingStars(rankingRequest.getRankingStars());
         rankingRepository.save(ranking);
         RankingResponse response= modelMapper.map(ranking, RankingResponse.class);
         response.setUser(modelMapper.map(ranking.getUser(), UserResponse.class));
@@ -56,8 +56,8 @@ public class RankingServiceImpl implements RankingService {
     }
 
     @Override
-    public String deleteRanking(long id){
-        Ranking ranking = rankingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ranking", "id", id));
+    public String deleteRanking(Long rankingId){
+        Ranking ranking = rankingRepository.findById(rankingId).orElseThrow(() -> new ResourceNotFoundException("Ranking", "id", rankingId));
         rankingRepository.delete(ranking);
         return "Ranking deleted successfully";
     }
@@ -74,18 +74,18 @@ public class RankingServiceImpl implements RankingService {
     }
 
     @Override
-    public RankingResponse getRankingById(Long id){
-        Ranking ranking = rankingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ranking", "id", id));
+    public RankingResponse getRankingById(Long rankingId){
+        Ranking ranking = rankingRepository.findById(rankingId).orElseThrow(() -> new ResourceNotFoundException("Ranking", "id", rankingId));
         RankingResponse response= modelMapper.map(ranking, RankingResponse.class);
         response.setUser(modelMapper.map(ranking.getUser(), UserResponse.class));
         return response;
     }
 
     @Override
-    public List<RankingResponse> getRankingByDishId(Long id,Pageable pageable){
+    public List<RankingResponse> getRankingByDishId(Long rankingId,Pageable pageable){
 
 
-        List<RankingResponse> ranking = rankingRepository.findAllByDishId(id,pageable).getContent().stream().map(result ->
+        List<RankingResponse> ranking = rankingRepository.findAllByDishId(rankingId,pageable).getContent().stream().map(result ->
         {
             RankingResponse response = modelMapper.map(result, RankingResponse.class);
             response.setUser((modelMapper.map(result.getUser(), UserResponse.class)));
@@ -95,8 +95,8 @@ public class RankingServiceImpl implements RankingService {
     }
 
     @Override
-    public List<RankingResponse> getRankingByUserId(Long id,Pageable pageable){
-        List<RankingResponse> ranking = rankingRepository.findAllByUserId(id,pageable).getContent().stream().map(result ->
+    public List<RankingResponse> getRankingByUserId(Long rankingId,Pageable pageable){
+        List<RankingResponse> ranking = rankingRepository.findAllByUserId(rankingId,pageable).getContent().stream().map(result ->
         {
             RankingResponse response = modelMapper.map(result, RankingResponse.class);
             response.setUser((modelMapper.map(result.getUser(), UserResponse.class)));
@@ -107,8 +107,8 @@ public class RankingServiceImpl implements RankingService {
 
 
     @Override
-    public List<RankingResponse> getRankingByStar(int star,Pageable pageable) {
-        List<RankingResponse> ranking = rankingRepository.findAllByStar(star,pageable).getContent().stream().map(result ->
+    public List<RankingResponse> getRankingByStar(int rankingStars,Pageable pageable) {
+        List<RankingResponse> ranking = rankingRepository.findAllByRankingStars(rankingStars,pageable).getContent().stream().map(result ->
         {
             RankingResponse response = modelMapper.map(result, RankingResponse.class);
             response.setUser((modelMapper.map(result.getUser(), UserResponse.class)));
