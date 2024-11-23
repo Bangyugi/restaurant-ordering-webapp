@@ -21,7 +21,7 @@ public class Payment extends BaseEntity{
     private long amount;
     private String coupoonCode;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
     @JoinColumn(name = "order_id")
     private Order order;
 }

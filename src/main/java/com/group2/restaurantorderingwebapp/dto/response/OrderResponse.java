@@ -1,5 +1,8 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
+import com.group2.restaurantorderingwebapp.entity.Dish;
+import com.group2.restaurantorderingwebapp.entity.Position;
+import com.group2.restaurantorderingwebapp.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +20,7 @@ public class OrderResponse {
     private Long timeServing;
     private Double totalPrice;
     private boolean status;
-    private Long userId;
-    private Set<OrderItemResponse> orderItems;
-    
+    private UserResponse user;
+    private DishResponse dish;
+    private PositionResponse position;
 }

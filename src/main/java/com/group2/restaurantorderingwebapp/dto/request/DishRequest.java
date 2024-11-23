@@ -19,7 +19,7 @@ public class DishRequest {
     private Double price;
     private String status;
     private String ingredient;
-    private String portion;
+    private int portion;
     private Long cookingTime;
     private Set<String> categories;
 }

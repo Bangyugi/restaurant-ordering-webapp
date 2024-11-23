@@ -17,6 +17,6 @@ public class DishResponse {
     private Double price;
     private String status;
     private String ingredient;
-    private String portion;
+    private int portion;
     private Long cookingTime;
 }

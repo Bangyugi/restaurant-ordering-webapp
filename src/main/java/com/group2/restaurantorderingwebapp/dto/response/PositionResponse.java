@@ -14,5 +14,4 @@ import java.util.Set;
 public class PositionResponse {
     private Long positionId;
     private String positionName;
-    private Set<OrderResponse> orders;
 }

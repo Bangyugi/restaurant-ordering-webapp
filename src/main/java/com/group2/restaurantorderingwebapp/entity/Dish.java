@@ -32,6 +32,7 @@ public class Dish extends BaseEntity{
     @Column(nullable = false)
     private Double price;
     private String status;
+    private int orderAmount;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
     @JoinTable(
@@ -52,6 +53,4 @@ public class Dish extends BaseEntity{
     @OneToMany(mappedBy = "dish",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Ranking> rankings;
 
-    @OneToMany(mappedBy = "dish",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    private Set<OrderItem> orderItem;
 }
