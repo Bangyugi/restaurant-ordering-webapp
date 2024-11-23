@@ -30,8 +30,9 @@ public enum ErrorCode {
     EMAIL_EXISTED(400, "Email already exists", HttpStatus.BAD_REQUEST),
     EMAIL_NOT_FOUND(404, "Email not found", HttpStatus.NOT_FOUND),
 
-   PHONE_EXISTED(400, "Phone already exists", HttpStatus.BAD_REQUEST);
-
+   PHONE_EXISTED(400, "Phone already exists", HttpStatus.BAD_REQUEST),
+    DISH_EXISTED(400, "Dish already exists", HttpStatus.BAD_REQUEST),
+    CATEGORY_EXISTED(400, "Category already exists", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;

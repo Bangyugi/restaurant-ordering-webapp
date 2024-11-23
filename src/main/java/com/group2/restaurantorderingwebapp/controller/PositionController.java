@@ -4,6 +4,7 @@ import com.group2.restaurantorderingwebapp.dto.request.PositionRequest;
 import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PositionResponse;
 import com.group2.restaurantorderingwebapp.service.PositionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/positions")
 @RequiredArgsConstructor
+@Tag(name = "Positions")
 public class PositionController {
 
     private  final PositionService positionService;
@@ -24,9 +26,9 @@ public class PositionController {
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
-@GetMapping("/{id}")
-public ResponseEntity<ApiResponse> getById(@PathVariable String id) {
-    PositionResponse positionResponse = positionService.getPosition(id);
+@GetMapping("/{positionId}")
+public ResponseEntity<ApiResponse> getById(@PathVariable("positionId") Long positionId) {
+    PositionResponse positionResponse = positionService.getPosition(positionId);
     ApiResponse apiResponse = ApiResponse.success(positionResponse);
     return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 }
@@ -38,16 +40,16 @@ public ResponseEntity<ApiResponse> getAll() {
     return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 }
 
-@PutMapping("/{id}")
-public ResponseEntity<ApiResponse> updateById(@PathVariable String id, @RequestBody PositionRequest positionRequest) {
-    PositionResponse positionResponse = positionService.updatePosition(id, positionRequest);
+@PutMapping("/{positionId}")
+public ResponseEntity<ApiResponse> updateById(@PathVariable("positionId") Long positionId, @RequestBody PositionRequest positionRequest) {
+    PositionResponse positionResponse = positionService.updatePosition(positionId, positionRequest);
     ApiResponse apiResponse = ApiResponse.success(positionResponse);
     return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 }
 
-@DeleteMapping("/{id}")
-public ResponseEntity<ApiResponse> deleteById(@PathVariable String id) {
-    ApiResponse apiResponse = ApiResponse.success(positionService.deletePosition(id));
+@DeleteMapping("/{positionId}")
+public ResponseEntity<ApiResponse> deleteById(@PathVariable("positionId") Long positionId) {
+    ApiResponse apiResponse = ApiResponse.success(positionService.deletePosition(positionId));
     return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 }
 }

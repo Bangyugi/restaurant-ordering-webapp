@@ -2,6 +2,7 @@ package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.LoginRequest;
 import com.group2.restaurantorderingwebapp.dto.request.RegisterRequest;
+import com.group2.restaurantorderingwebapp.dto.response.JwtAuthResponse;
 import com.group2.restaurantorderingwebapp.entity.Role;
 import com.group2.restaurantorderingwebapp.entity.User;
 import com.group2.restaurantorderingwebapp.exception.AppException;
@@ -34,31 +35,41 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
+
     @Override
-    public String login(LoginRequest loginRequest){
+    public JwtAuthResponse login(LoginRequest loginRequest){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getUsername(), loginRequest.getPassword()
+                loginRequest.getEmailOrPhone(), loginRequest.getPassword()
         ));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
-        return token;
+        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+        jwtAuthResponse.setAccessToken(token);
+        return jwtAuthResponse;
     }
 
     @Override
     public String register(RegisterRequest registerRequest){
-        if (!registerRequest.getEmail().isEmpty() && userRepository.existsByEmail(registerRequest.getEmail())){
+        if (registerRequest.getEmail()!=null && userRepository.existsByEmail(registerRequest.getEmail())){
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
-        if (!registerRequest.getPhoneNumber().isEmpty() && userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())){
+        if (registerRequest.getPhoneNumber()!=null && userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())){
             throw new AppException(ErrorCode.PHONE_EXISTED);
         }
+
         User user = modelMapper.map(registerRequest, User.class);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         Set<Role> roles = new HashSet<>();
-        Role role = roleRepository.findByRole("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role", "role's name","ROLE_USER"));
+        Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role", "role's name","ROLE_USER"));
         roles.add(role);
         user.setRoles(roles);
+
+
+        user = userRepository.save(user);
+        String username = registerRequest.getFirstName()+registerRequest.getLastName().replace(" ","");
+        user.setUsername(username);
+
         userRepository.save(user);
         return "User registered successfully!.";
     }

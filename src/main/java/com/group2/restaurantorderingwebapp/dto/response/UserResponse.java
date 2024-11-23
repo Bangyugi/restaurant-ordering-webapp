@@ -14,9 +14,10 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
-    private Long id;
+    private Long userId;
     private String firstName;
     private String lastName;
+    private String username;
     private String email;
     private String address;
     private String phoneNumber;

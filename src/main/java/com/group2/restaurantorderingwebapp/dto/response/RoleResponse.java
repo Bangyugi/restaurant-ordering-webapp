@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleResponse {
-    private Long id;
-    private String role;
+    private Long roleId;
+    private String roleName;
     private String description;
 }

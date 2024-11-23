@@ -3,6 +3,7 @@ package com.group2.restaurantorderingwebapp.controller;
 import com.group2.restaurantorderingwebapp.dto.request.RankingRequest;
 import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.service.RankingService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/rankings")
+@Tag(name = "Ranking", description = "Ranking API")
 public class RankingController {
 
     private final RankingService rankingService;
@@ -22,37 +24,37 @@ public class RankingController {
     public ResponseEntity<ApiResponse> getAllRankings(
             @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
             @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy",defaultValue = "star", required = false) String sortBy
+            @RequestParam(value = "sortBy",defaultValue = "rankingStars", required = false) String sortBy
     ){
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).descending() );
         ApiResponse apiResponse = ApiResponse.success(rankingService.getAllRanking(pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/dishes/{id}")
-    public ResponseEntity<ApiResponse> getRankingByDishId(@PathVariable("id") Long id,@RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+    @GetMapping("/dishes/{rankingId}")
+    public ResponseEntity<ApiResponse> getRankingByDishId(@PathVariable("rankingId") Long rankingId,@RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
                                                           @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-                                                          @RequestParam(value = "sortBy",defaultValue = "star", required = false) String sortBy
+                                                          @RequestParam(value = "sortBy",defaultValue = "rankingStars", required = false) String sortBy
     ){
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).descending() );
-        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingByDishId(id,pageable));
+        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingByDishId(rankingId,pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<ApiResponse> getRankingByUserId(@PathVariable("id") Long id,@RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+    @GetMapping("/users/{rankingId}")
+    public ResponseEntity<ApiResponse> getRankingByUserId(@PathVariable("rankingId") Long rankingId,@RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
                                                           @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-                                                          @RequestParam(value = "sortBy",defaultValue = "star", required = false) String sortBy
+                                                          @RequestParam(value = "sortBy",defaultValue = "rankingStars", required = false) String sortBy
     ){
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).descending() );
-        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingByUserId(id,pageable));
+        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingByUserId(rankingId,pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getRankingById(@PathVariable("id") Long id){
+    @GetMapping("/{rankingId}")
+    public ResponseEntity<ApiResponse> getRankingById(@PathVariable("rankingId") Long rankingId){
 
-        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingById(id));
+        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingById(rankingId));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
@@ -62,25 +64,25 @@ public class RankingController {
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateRanking(@PathVariable("id") Long id, @RequestBody RankingRequest rankingRequest){
-        ApiResponse apiResponse = ApiResponse.success(rankingService.updateRanking(id, rankingRequest));
+    @PutMapping("/{rankingId}")
+    public ResponseEntity<ApiResponse> updateRanking(@PathVariable("rankingId") Long rankingId, @RequestBody RankingRequest rankingRequest){
+        ApiResponse apiResponse = ApiResponse.success(rankingService.updateRanking(rankingId, rankingRequest));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteRanking(@PathVariable("id") Long id){
-        ApiResponse apiResponse = ApiResponse.success(rankingService.deleteRanking(id));
+    @DeleteMapping("/{rankingId}")
+    public ResponseEntity<ApiResponse> deleteRanking(@PathVariable("rankingId") Long rankingId){
+        ApiResponse apiResponse = ApiResponse.success(rankingService.deleteRanking(rankingId));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/star/{star}")
-    public ResponseEntity<ApiResponse> getRankingByStar(@PathVariable("star") int star, @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+    @GetMapping("/star/{rankingStars}")
+    public ResponseEntity<ApiResponse> getRankingByStar(@PathVariable("rankingStars") int rankingStars, @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
                                                         @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-                                                        @RequestParam(value = "sortBy",defaultValue = "star", required = false) String sortBy
+                                                        @RequestParam(value = "sortBy",defaultValue = "rankingStars", required = false) String sortBy
     ){
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).descending() );
-        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingByStar(star,pageable));
+        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingByStar(rankingStars,pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 }

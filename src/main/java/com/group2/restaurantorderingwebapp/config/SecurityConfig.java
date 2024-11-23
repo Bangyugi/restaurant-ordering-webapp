@@ -27,17 +27,17 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private UserDetailsService userDetailsService;
-
-    private JwtAuthenticationEntryPoint authenticationEntryPoint;
-
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationEntryPoint authenticationEntryPoint,JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.userDetailsService = userDetailsService;
-        this.authenticationEntryPoint = authenticationEntryPoint;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
+//    private UserDetailsService userDetailsService;
+//
+//    private JwtAuthenticationEntryPoint authenticationEntryPoint;
+//
+//    private JwtAuthenticationFilter jwtAuthenticationFilter;
+//
+//    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationEntryPoint authenticationEntryPoint,JwtAuthenticationFilter jwtAuthenticationFilter) {
+//        this.userDetailsService = userDetailsService;
+//        this.authenticationEntryPoint = authenticationEntryPoint;
+//        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+//    }
 
     @Bean
     public static PasswordEncoder passwordEncoder(){
@@ -62,23 +62,24 @@ public class SecurityConfig {
 //                                        .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
 //                                        .requestMatchers("/api/auth/**").permitAll()
 //                                        .requestMatchers(HttpMethod.GET,"api/users/{id}").permitAll()
-                                        .requestMatchers("/api/users/**").hasRole("USER")
-                                        .requestMatchers("/api/role/**").hasRole("USER")
+//                                        .requestMatchers("/api/users/**").hasRole("USER")
+//                                        .requestMatchers("/api/role/**").hasRole("USER")
                                         .anyRequest().permitAll()
 
 
-                ) .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(authenticationEntryPoint)
-//                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-//                            ApiResponse apiResponse = ApiResponse.error(403, "Access is denied");
-//                            response.setStatus(HttpStatus.FORBIDDEN.value());
-//                            response.setContentType("application/json");
-//                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
-//                        })
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                ) ;
+//                .exceptionHandling(exceptionHandling -> exceptionHandling
+//                        .authenticationEntryPoint(authenticationEntryPoint)
+////                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+////                            ApiResponse apiResponse = ApiResponse.error(403, "Access is denied");
+////                            response.setStatus(HttpStatus.FORBIDDEN.value());
+////                            response.setContentType("application/json");
+////                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+////                        })
+//                )
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                );
+//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

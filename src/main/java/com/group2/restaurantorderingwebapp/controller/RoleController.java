@@ -3,6 +3,7 @@ package com.group2.restaurantorderingwebapp.controller;
 import com.group2.restaurantorderingwebapp.dto.request.RoleRequest;
 import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.service.RoleService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,8 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/role")
+@RequestMapping("/api/roles")
 @RequiredArgsConstructor
+@Tag(name = "Role")
 public class RoleController {
     private final RoleService roleService;
 
@@ -21,9 +23,9 @@ public class RoleController {
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<ApiResponse> getRoleByName(@PathVariable("name") String name){
-        ApiResponse apiResponse = ApiResponse.success(roleService.getRoleByRoleName(name));
+    @GetMapping("/name/{roleName}")
+    public ResponseEntity<ApiResponse> getRoleByName(@PathVariable("roleName") String roleName){
+        ApiResponse apiResponse = ApiResponse.success(roleService.getRoleByRoleName(roleName));
         return new ResponseEntity<>(apiResponse,HttpStatus.OK);
     }
 
@@ -33,9 +35,9 @@ public class RoleController {
         return new ResponseEntity<>(apiResponse,HttpStatus.OK);
     }
 
-    @DeleteMapping("/{name}")
-    public ResponseEntity<ApiResponse> deleteRoleByName(@PathVariable("name") String name){
-        ApiResponse apiResponse = ApiResponse.success(roleService.deleteRoleByRoleName(name));
+    @DeleteMapping("/{roleId}")
+    public ResponseEntity<ApiResponse> deleteRoleByName(@PathVariable("roleId") Long roleId){
+        ApiResponse apiResponse = ApiResponse.success(roleService.deleteRole(roleId));
         return new ResponseEntity<>(apiResponse,HttpStatus.OK);
     }
 }

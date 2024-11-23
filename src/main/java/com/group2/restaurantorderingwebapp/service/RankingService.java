@@ -13,7 +13,7 @@ public interface RankingService {
 
     RankingResponse updateRanking(Long id, RankingRequest rankingRequest);
 
-    String deleteRanking(long id);
+    String deleteRanking(Long id);
 
     List<RankingResponse> getAllRanking(Pageable pageable);
 

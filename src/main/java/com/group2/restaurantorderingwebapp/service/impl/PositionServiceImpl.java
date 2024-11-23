@@ -28,13 +28,13 @@ public class PositionServiceImpl implements PositionService {
 
 
     @Override
-    public PositionResponse getPosition(String id) {
-        Position position = positionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Position", "id", id));
+    public PositionResponse getPosition(Long positionId) {
+        Position position = positionRepository.findById(positionId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
         PositionResponse positionResponse = modelMapper.map(position, PositionResponse.class);
         positionResponse.setOrders(position.getOrders().stream().map(result -> {
             OrderResponse orderResponse = modelMapper.map(result, OrderResponse.class);
             if(result.getUser() != null)
-              orderResponse.setUserId(result.getUser().getId());
+              orderResponse.setUserId(result.getUser().getUserId());
             return orderResponse;
         }).filter(order -> !order.isStatus()).collect(Collectors.toSet()));
         return positionResponse;
@@ -49,7 +49,7 @@ public class PositionServiceImpl implements PositionService {
                             .map(order -> {
                                 OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
                                 if (order.getUser() != null)
-                                    orderResponse.setUserId(order.getUser().getId());
+                                    orderResponse.setUserId(order.getUser().getUserId());
                                 return orderResponse;
                             }).filter(order -> !order.isStatus())
                             .collect(Collectors.toSet()));
@@ -59,11 +59,11 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public PositionResponse updatePosition(String id, PositionRequest positionRequest) {
-        Position position = positionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", id));
+    public PositionResponse updatePosition(Long positionId, PositionRequest positionRequest) {
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
 
-        position.setName(positionRequest.getName());
+        position.setPositionName(positionRequest.getPositionName());
         Position updatedPosition = positionRepository.save(position);
         PositionResponse response = modelMapper.map(updatedPosition, PositionResponse.class);
         response.setOrders(updatedPosition.getOrders().stream()
@@ -73,9 +73,9 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public String deletePosition(String id) {
-        Position position = positionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", id));
+    public String deletePosition(Long positionId) {
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
 
         positionRepository.delete(position);
         return "Deleted position successfully";

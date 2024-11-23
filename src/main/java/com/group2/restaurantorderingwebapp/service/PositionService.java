@@ -10,11 +10,12 @@ public interface PositionService {
 
     PositionResponse createPosition(PositionRequest positionRequest);
 
-    PositionResponse getPosition(String id);
+    PositionResponse getPosition(Long id);
 
     List<PositionResponse> getAllPositions();
 
-    PositionResponse updatePosition(String id, PositionRequest positionRequest);
+    PositionResponse updatePosition(Long id, PositionRequest positionRequest);
 
-    String deletePosition(String id);
+
+    String deletePosition(Long id);
 }

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.group2.restaurantorderingwebapp.dto.request.OrderRequest;
 import com.group2.restaurantorderingwebapp.dto.response.OrderResponse;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.Set;
@@ -80,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setOrderItems(order.getOrderItems().stream().map(orderItem -> modelMapper.map(orderItem, OrderItemResponse.class)).collect(Collectors.toSet()));
         if (order.getUser() != null)
         {
-            orderResponse.setUserId(order.getUser().getId());
+            orderResponse.setUserId(order.getUser().getUserId());
         }
         return orderResponse;
     }
@@ -95,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setOrderItems(order.getOrderItems().stream().map(orderItem -> modelMapper.map(orderItem, OrderItemResponse.class)).collect(Collectors.toSet()));
         if (order.getUser() != null)
         {
-            orderResponse.setUserId(order.getUser().getId());
+            orderResponse.setUserId(order.getUser().getUserId());
         }
         return orderResponse;
     }
@@ -107,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setOrderItems(order.getOrderItems().stream().map(orderItem -> modelMapper.map(orderItem, OrderItemResponse.class)).collect(Collectors.toSet()));
         if (order.getUser() != null)
         {
-            orderResponse.setUserId(order.getUser().getId());
+            orderResponse.setUserId(order.getUser().getUserId());
         }
         return orderResponse;
     }
@@ -121,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
                     orderResponse.setOrderItems(order.getOrderItems().stream().map(orderItem -> modelMapper.map(orderItem, OrderItemResponse.class)).collect(Collectors.toSet()));
                     if (order.getUser() != null)
                     {
-                        orderResponse.setUserId(order.getUser().getId());
+                        orderResponse.setUserId(order.getUser().getUserId());
                     }
                     return orderResponse;
                 })

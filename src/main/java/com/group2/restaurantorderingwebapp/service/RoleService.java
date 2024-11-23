@@ -10,7 +10,9 @@ public interface RoleService {
 
     RoleResponse getRoleByRoleName(String roleName);
 
+    RoleResponse getRoleById(Long roleId);
+
     List<RoleResponse> getAllRole();
 
-    String deleteRoleByRoleName(String roleName);
+    String deleteRole(Long id);
 }

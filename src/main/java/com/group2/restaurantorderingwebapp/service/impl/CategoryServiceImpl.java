@@ -1,9 +1,10 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.CategoryRequest;
-import com.group2.restaurantorderingwebapp.dto.response.CategoryDishResponse;
-import com.group2.restaurantorderingwebapp.dto.response.DishResponse;
+import com.group2.restaurantorderingwebapp.dto.response.CategoryResponse;
 import com.group2.restaurantorderingwebapp.entity.Category;
+import com.group2.restaurantorderingwebapp.exception.AppException;
+import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 import com.group2.restaurantorderingwebapp.repository.CategoryRepository;
 import com.group2.restaurantorderingwebapp.service.CategoryService;
@@ -11,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,62 +21,47 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
 
-    @Override
-    public CategoryDishResponse addCategory(CategoryRequest categoryRequest){
-        Category category = modelMapper.map(categoryRequest,Category.class);
-        return modelMapper.map(categoryRepository.save(category), CategoryDishResponse.class);
-    }
+  @Override
+    public CategoryResponse addCategory(CategoryRequest categoryRequest){
+      if (categoryRepository.existsByCategoryName(categoryRequest.getCategoryName())){
+          throw new AppException(ErrorCode.CATEGORY_EXISTED);
+      }
+      Category category = modelMapper.map(categoryRequest, Category.class);
+      return modelMapper.map(categoryRepository.save(category), CategoryResponse.class);
+  }
+
+  @Override
+    public CategoryResponse updateCategory(Long categoryId, CategoryRequest categoryRequest){
+      if (categoryRepository.existsByCategoryName(categoryRequest.getCategoryName())){
+          throw new AppException(ErrorCode.CATEGORY_EXISTED);
+      }
+      Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category","id",categoryId));
+      modelMapper.map(categoryRequest,category);
+      return modelMapper.map(categoryRepository.save(category), CategoryResponse.class);
+  }
+
+  @Override
+    public CategoryResponse getCategoryById(Long categoryId){
+      Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category","id",categoryId));
+      return modelMapper.map(category,CategoryResponse.class);
+  }
+
+  @Override
+    public List<CategoryResponse> getAllCategory(){
+      List<CategoryResponse> categories = categoryRepository.findAll().stream().map(category -> modelMapper.map(category, CategoryResponse.class)).toList();
+      return categories;
+  }
 
     @Override
-    public CategoryDishResponse getCategoryById(Long id){
-        Category category = categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Category","id",id));
-        CategoryDishResponse categoryDishResponse = modelMapper.map(category, CategoryDishResponse.class);
-        List<DishResponse> dishResponses = category.getDishes().stream()
-                .map(result->modelMapper.map(result,DishResponse.class))
-                .sorted(Comparator.comparing(DishResponse::getDishName))
-                .toList();
-        categoryDishResponse.setDishes(dishResponses);
-        return categoryDishResponse;
-    }
-
-    @Override
-    public List<CategoryDishResponse> getAllCategory(){
-        List<Category> categories = categoryRepository.findAll();
-        List<CategoryDishResponse> categoryDishResponses = new ArrayList<>();
-        for(Category category:categories){
-            List<DishResponse> dishResponses = category.getDishes().stream()
-                    .map(result->modelMapper.map(result, DishResponse.class))
-                    .sorted(Comparator.comparing(DishResponse::getDishName)).toList();
-            CategoryDishResponse categoryDishResponse = modelMapper.map(category, CategoryDishResponse.class);
-            categoryDishResponse.setDishes(dishResponses);
-            categoryDishResponses.add(categoryDishResponse);
-        }
-        return  categoryDishResponses;
-    }
-
-    @Override
-    public CategoryDishResponse getCategoryByCategoryName(String categoryName){
-        Category category = categoryRepository.findByCategoryName(categoryName).orElseThrow(()->new ResourceNotFoundException("Category","name",categoryName));
-        CategoryDishResponse categoryDishResponse = modelMapper.map(category, CategoryDishResponse.class);
-        List<DishResponse> dishResponses = category.getDishes().stream()
-                        .map(result->modelMapper.map(result,DishResponse.class))
-                                .sorted(Comparator.comparing(DishResponse::getDishName))
-                                        .toList();
-        categoryDishResponse.setDishes(dishResponses);
-        return categoryDishResponse;
-    }
-
-    @Override
-    public CategoryDishResponse updateCategory(CategoryRequest categoryRequest, Long id){
-        Category category = categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("category","id",id));
-        modelMapper.map(categoryRequest,category);
-        return modelMapper.map(categoryRepository.save(category), CategoryDishResponse.class);
-    }
-
-    @Override
-    public String deleteCategory(Long id){
-        Category category = categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Category","id",id));
+    public String deleteCategory(Long categoryId){
+        Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category","id",categoryId));
         categoryRepository.delete(category);
-        return "Category with id: " +id+ " was deleted successfully";
+        return "Category with id: " +categoryId+ " was deleted successfully";
+    }
+
+    @Override
+    public List<CategoryResponse> getCategoryByCategoryName(String categoryName){
+        List<CategoryResponse> categories = categoryRepository.findAllByCategoryName(categoryName).stream().map(category -> modelMapper.map(category, CategoryResponse.class)).toList();
+        return categories;
     }
 }

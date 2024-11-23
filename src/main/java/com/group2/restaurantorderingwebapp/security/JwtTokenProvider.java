@@ -1,19 +1,18 @@
 package com.group2.restaurantorderingwebapp.security;
 
 import com.group2.restaurantorderingwebapp.exception.AppException;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.function.Function;
 
 @Component
 public class JwtTokenProvider {
@@ -24,7 +23,8 @@ public class JwtTokenProvider {
     @Value("${app.jwt-expiration-milliseconds}")
     private long jwtExpirationDate;
 
-    // Tao JWT token
+
+     //Tao JWT token
     public  String generateToken(Authentication authentication){
         String userEmail = authentication.getName();
         Date currentDate = new Date();
@@ -44,7 +44,7 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-     public String getUserEmail(String token){
+     public String getUsername(String token){
         return Jwts.parser()
                 .verifyWith(key())
                 .build()
