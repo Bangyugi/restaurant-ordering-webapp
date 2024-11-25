@@ -21,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,6 +50,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return jwtAuthResponse;
     }
 
+
+
     @Override
     public String register(RegisterRequest registerRequest){
         if (registerRequest.getEmail()!=null && userRepository.existsByEmail(registerRequest.getEmail())){
@@ -65,9 +69,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         roles.add(role);
         user.setRoles(roles);
 
-
-        String username = registerRequest.getFirstName()+registerRequest.getLastName().replace(" ","");
-        user.setUsername(username);
+        user = userRepository.save(user);
+        user.setUsername(user.getFirstName()+"0"+user.getUserId());
 
         userRepository.save(user);
         return "User registered successfully!.";

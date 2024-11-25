@@ -30,7 +30,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse> getAllOrder(
             @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
             @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy",defaultValue = "orderId", required = false) String sortBy
+            @RequestParam(value = "sortBy",defaultValue = "createAt", required = false) String sortBy
     ) {
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
         ApiResponse apiResponse = ApiResponse.success(orderService.getAllOrders(pageable));
@@ -65,7 +65,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse> getOrderByUserId(@PathVariable("userId") Long userId,
                                                         @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
                                                         @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-                                                        @RequestParam(value = "sortBy",defaultValue = "orderId", required = false) String sortBy) {
+                                                        @RequestParam(value = "sortBy",defaultValue = "createAt", required = false) String sortBy) {
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
         ApiResponse apiResponse = ApiResponse.success(orderService.getOrdersByUser(userId,pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -75,7 +75,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse> getOrderByPositionId(@PathVariable("positionId") Long positionId,
                                                             @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
                                                             @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-                                                            @RequestParam(value = "sortBy",defaultValue = "orderId", required = false) String sortBy) {
+                                                            @RequestParam(value = "sortBy",defaultValue = "createAt", required = false) String sortBy) {
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
         ApiResponse apiResponse = ApiResponse.success(orderService.getOrdersByPosition(positionId,pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);

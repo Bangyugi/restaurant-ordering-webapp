@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
     public PageCustom<OrderResponse> getAllOrders(Pageable pageable) {
        Page<Order> page=orderRepository.findAll(pageable);
        PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
-               .pageNo(page.getNumber())
+               .pageNo(page.getNumber()+1)
                .pageSize(page.getSize())
                .totalPages(page.getTotalPages())
                .pageContent(page.getContent().stream().map(order->modelMapper.map(order, OrderResponse.class)).toList())

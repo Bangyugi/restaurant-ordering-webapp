@@ -18,8 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -74,24 +77,36 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUser(Long userId, UserRequest userRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        if (userRequest.getEmail()!=null && userRepository.existsByEmail(userRequest.getEmail())){
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        if (user.getEmail()!=null && userRequest.getEmail()!=null && !userRequest.getEmail().equals(user.getEmail()))
+        {
+            throw new AppException(ErrorCode.EMAIL_CAN_NOT_UPDATE);
         }
-        if (userRequest.getPhoneNumber()!=null && userRepository.existsByPhoneNumber(userRequest.getPhoneNumber())){
-            throw new AppException(ErrorCode.PHONE_EXISTED);
+        if (user.getPhoneNumber()!=null &&userRequest.getPhoneNumber()!=null && !userRequest.getPhoneNumber().equals(user.getPhoneNumber()))
+        {
+            throw new AppException(ErrorCode.PHONE_NUMBER_CAN_NOT_UPDATE);
         }
 
-       modelMapper.map(userRequest, user);
+        modelMapper.map(userRequest,user);
+
+        if (user.getUsername() != null) {
+            if(userRepository.existsByUsername(userRequest.getUsername())){
+                throw new AppException(ErrorCode.USERNAME_EXISTED);
+            }
+            else {
+                user.setUsername(userRequest.getUsername());
+            }
+        }
+        else {
+            user.setUsername(userRequest.getFirstName()+"0"+user.getUserId());
+        }
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-
         Set<Role> roles = new HashSet<>();
         Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role", "role's name","ROLE_USER"));
         roles.add(role);
         user.setRoles(roles);
 
 
-        String username = userRequest.getFirstName()+userRequest.getLastName().replace(" ","");
-        user.setUsername(username);
+  
 
         return modelMapper.map(userRepository.save(user),UserResponse.class);
     }
