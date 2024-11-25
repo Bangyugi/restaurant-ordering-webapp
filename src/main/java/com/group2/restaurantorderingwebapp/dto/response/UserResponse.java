@@ -17,10 +17,9 @@ public class UserResponse {
     private Long userId;
     private String firstName;
     private String lastName;
-    private String username;
-    private String email;
+    private String imageUrl;
     private String address;
-    private String phoneNumber;
+    private String emailOrPhone;
     private String gender;
     private LocalDate Dob;
     private boolean status;

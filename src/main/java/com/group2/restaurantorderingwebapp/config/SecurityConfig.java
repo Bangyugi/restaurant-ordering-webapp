@@ -1,22 +1,13 @@
 package com.group2.restaurantorderingwebapp.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
-import com.group2.restaurantorderingwebapp.security.JwtAuthenticationEntryPoint;
-import com.group2.restaurantorderingwebapp.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -24,65 +15,50 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
-@EnableMethodSecurity
+@EnableWebSecurity
 public class SecurityConfig {
+    private final AuthenticationProvider authenticationProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-//    private UserDetailsService userDetailsService;
-//
-//    private JwtAuthenticationEntryPoint authenticationEntryPoint;
-//
-//    private JwtAuthenticationFilter jwtAuthenticationFilter;
-//
-//    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationEntryPoint authenticationEntryPoint,JwtAuthenticationFilter jwtAuthenticationFilter) {
-//        this.userDetailsService = userDetailsService;
-//        this.authenticationEntryPoint = authenticationEntryPoint;
-//        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-//    }
-
-    @Bean
-    public static PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.authenticationProvider = authenticationProvider;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
-        return configuration.getAuthenticationManager();
-    }
+
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(httpSecurityCorsConfigurer -> corsFilter())
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(httpSecurityCorsConfigurer -> corsFilter())
                 .authorizeHttpRequests(
-                        configure ->
-                                configure
-//                                        .requestMatchers(HttpMethod.GET, "/api/dishes/**").permitAll()
-//                                        .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
-//                                        .requestMatchers("/api/auth/**").permitAll()
-//                                        .requestMatchers(HttpMethod.GET,"api/users/{id}").permitAll()
-//                                        .requestMatchers("/api/users/**").hasRole("USER")
-//                                        .requestMatchers("/api/role/**").hasRole("USER")
-                                        .anyRequest().permitAll()
-
-
-                ) ;
-//                .exceptionHandling(exceptionHandling -> exceptionHandling
-//                        .authenticationEntryPoint(authenticationEntryPoint)
-////                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-////                            ApiResponse apiResponse = ApiResponse.error(403, "Access is denied");
-////                            response.setStatus(HttpStatus.FORBIDDEN.value());
-////                            response.setContentType("application/json");
-////                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
-////                        })
-//                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                );
-//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        config->config
+                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("swagger-ui/index.html" +"/**"
+                                        , "/v3/api-docs/**"
+                                        , "/swagger-ui/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/categories/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/dishes/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/rankings/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/categories/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/positions/**").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/api/orders/orders/").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/orders/{orderId}").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/orders/position/{positionId}").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/orders/user/{userId}").hasRole("USER")
+                                .requestMatchers(HttpMethod.GET,"/api/order/{orderId}/update-user").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/api/rankings").hasRole("USER")
+                                .requestMatchers(HttpMethod.GET,"/api/users/{userId}").permitAll()
+                                .anyRequest().hasAnyRole("ADMIN","MANAGER")
+                )
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
 
 

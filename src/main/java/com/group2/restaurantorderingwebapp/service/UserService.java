@@ -18,7 +18,6 @@ public interface UserService {
 
     UserResponse getUserById(Long id);
 
-    UserResponse getUserByUsername(String username);
 
     PageCustom<UserResponse> getAllUser(Pageable pageable);
 
