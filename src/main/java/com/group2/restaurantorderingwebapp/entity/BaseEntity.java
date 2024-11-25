@@ -22,11 +22,11 @@ public class BaseEntity {
     @JsonIgnore
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime CreateAt;
+    private LocalDateTime createAt;
 
     @UpdateTimestamp
     @JsonIgnore
     @Column(name = "updated_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime UpdateAt;
+    private LocalDateTime updateAt;
 }

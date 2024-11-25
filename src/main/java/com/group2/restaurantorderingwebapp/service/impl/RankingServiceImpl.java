@@ -1,6 +1,7 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.RankingRequest;
+import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import com.group2.restaurantorderingwebapp.dto.response.RankingResponse;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 import com.group2.restaurantorderingwebapp.entity.Dish;
@@ -13,6 +14,7 @@ import com.group2.restaurantorderingwebapp.repository.UserRepository;
 import com.group2.restaurantorderingwebapp.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -63,14 +65,15 @@ public class RankingServiceImpl implements RankingService {
     }
 
     @Override
-    public List<RankingResponse> getAllRanking(Pageable pageable){
-        List<RankingResponse> ranking = rankingRepository.findAll(pageable).stream().map(result ->
-        {
-            RankingResponse response = modelMapper.map(result, RankingResponse.class);
-            response.setUser(modelMapper.map(result.getUser(), UserResponse.class));
-            return response;
-        }).toList();
-        return ranking;
+    public PageCustom<RankingResponse> getAllRanking(Pageable pageable) {
+        Page<Ranking> page = rankingRepository.findAll(pageable);
+        PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
+                .pageNo(page.getNumber()+1)
+                .pageSize(page.getSize())
+                .totalPages(page.getTotalPages())
+                .pageContent(page.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
+                .build();
+        return pageCustom;
     }
 
     @Override
@@ -82,39 +85,38 @@ public class RankingServiceImpl implements RankingService {
     }
 
     @Override
-    public List<RankingResponse> getRankingByDishId(Long rankingId,Pageable pageable){
-
-
-        List<RankingResponse> ranking = rankingRepository.findAllByDishId(rankingId,pageable).getContent().stream().map(result ->
-        {
-            RankingResponse response = modelMapper.map(result, RankingResponse.class);
-            response.setUser((modelMapper.map(result.getUser(), UserResponse.class)));
-            return response;
-        }).toList();
-        return ranking;
+    public PageCustom<RankingResponse> getRankingByDishId(Long rankingId,Pageable pageable){
+        Page<Ranking> ranking = rankingRepository.findAllByDishId(rankingId,pageable);
+        PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
+                .pageNo(ranking.getNumber()+1)
+                .pageSize(ranking.getSize())
+                .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
+                .build();
+        return pageCustom;
     }
 
     @Override
-    public List<RankingResponse> getRankingByUserId(Long rankingId,Pageable pageable){
-        List<RankingResponse> ranking = rankingRepository.findAllByUserId(rankingId,pageable).getContent().stream().map(result ->
-        {
-            RankingResponse response = modelMapper.map(result, RankingResponse.class);
-            response.setUser((modelMapper.map(result.getUser(), UserResponse.class)));
-            return response;
-        }).toList();
-        return ranking;
+    public PageCustom<RankingResponse> getRankingByUserId(Long rankingId,Pageable pageable){
+        Page<Ranking> ranking = rankingRepository.findAllByUserId(rankingId,pageable);
+        PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
+                .pageNo(ranking.getNumber()+1)
+                .pageSize(ranking.getSize())
+                .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
+                .build();
+
+        return pageCustom;
     }
 
 
     @Override
-    public List<RankingResponse> getRankingByStar(int rankingStars,Pageable pageable) {
-        List<RankingResponse> ranking = rankingRepository.findAllByRankingStars(rankingStars,pageable).getContent().stream().map(result ->
-        {
-            RankingResponse response = modelMapper.map(result, RankingResponse.class);
-            response.setUser((modelMapper.map(result.getUser(), UserResponse.class)));
-            return response;
-        }).toList();
-        return ranking;
+    public PageCustom<RankingResponse> getRankingByStar(int rankingStars,Pageable pageable) {
+        Page<Ranking> ranking = rankingRepository.findAllByRankingStars(rankingStars,pageable);
+        PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
+                .pageNo(ranking.getNumber()+1)
+                .pageSize(ranking.getSize())
+                .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
+                .build();
+        return pageCustom;
     }
 
 

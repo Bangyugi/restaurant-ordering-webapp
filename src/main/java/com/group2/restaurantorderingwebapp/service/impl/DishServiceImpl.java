@@ -67,9 +67,6 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public DishResponse updateDish(Long dishId, DishRequest dishRequest) {
-        if (dishRepository.existsByDishName(dishRequest.getDishName())) {
-            throw new AppException(ErrorCode.DISH_EXISTED);
-        }
         Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", dishId));
         modelMapper.map(dishRequest,dish);
         Set<Category> categories = new HashSet<>();

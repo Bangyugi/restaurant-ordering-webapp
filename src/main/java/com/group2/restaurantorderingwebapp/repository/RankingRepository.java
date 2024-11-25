@@ -21,5 +21,6 @@ public interface RankingRepository extends JpaRepository<Ranking,Long> {
     @Query("from Ranking r where r.dish.dishId=:id")
     Page<Ranking> findAllByDishId(Long id, Pageable pageable);
 
+
     Page<Ranking> findAllByRankingStars(int rankingStars, Pageable pageable);
 }

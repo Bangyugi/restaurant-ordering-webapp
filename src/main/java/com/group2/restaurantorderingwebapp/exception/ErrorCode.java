@@ -32,7 +32,10 @@ public enum ErrorCode {
 
    PHONE_EXISTED(400, "Phone already exists", HttpStatus.BAD_REQUEST),
     DISH_EXISTED(400, "Dish already exists", HttpStatus.BAD_REQUEST),
-    CATEGORY_EXISTED(400, "Category already exists", HttpStatus.BAD_REQUEST);
+    CATEGORY_EXISTED(400, "Category already exists", HttpStatus.BAD_REQUEST),
+    EMAIL_CAN_NOT_UPDATE(400, "Email can not update", HttpStatus.BAD_REQUEST),
+    PHONE_NUMBER_CAN_NOT_UPDATE(400, "Phone number can not update", HttpStatus.BAD_REQUEST),
+    USERNAME_EXISTED(400, "Username already exists", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;
