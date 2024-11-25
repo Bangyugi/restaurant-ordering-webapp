@@ -1,6 +1,5 @@
 package com.group2.restaurantorderingwebapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -22,7 +21,7 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Builder
-public class User extends BaseEntity  {
+public class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -32,14 +31,12 @@ public class User extends BaseEntity  {
     private String firstName;
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
     private String lastName;
-    @Column(columnDefinition = "varchar(50) collate 'utf8_bin'" ,unique = true)
-    private String username;
-    @Column()
+    @Column(nullable = false,unique = true)
+    private String emailOrPhone;
+    @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,nullable = false)
     private String password;
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
-    private String email;
     private String address;
-    private String phoneNumber;
     private String gender;
     private LocalDate Dob;
     @Builder.Default
@@ -61,4 +58,37 @@ public class User extends BaseEntity  {
     private Set<Ranking> rankings;
 
 
+    @Override
+    public String getUsername() {
+        return this.emailOrPhone;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> role= new ArrayList<>();
+        for (Role x: roles){
+            role.add(new SimpleGrantedAuthority(x.getRoleName()));
+        }
+        return role;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

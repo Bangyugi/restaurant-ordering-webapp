@@ -1,16 +1,21 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.sql.Timestamp;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class JwtAuthResponse {
-    private String accessToken;
+    @Builder.Default
     private String tokenType="Bearer";
-    private String username;
+    private String accessToken;
+    private String refreshToken;
+    private Long userId;
+    private String username ;
+    private Timestamp expiredTime;
+    private Timestamp expiredRefreshTime;
 }

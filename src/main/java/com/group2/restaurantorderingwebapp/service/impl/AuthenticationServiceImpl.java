@@ -3,6 +3,7 @@ package com.group2.restaurantorderingwebapp.service.impl;
 import com.group2.restaurantorderingwebapp.dto.request.LoginRequest;
 import com.group2.restaurantorderingwebapp.dto.request.RegisterRequest;
 import com.group2.restaurantorderingwebapp.dto.response.JwtAuthResponse;
+import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 import com.group2.restaurantorderingwebapp.entity.Role;
 import com.group2.restaurantorderingwebapp.entity.User;
 import com.group2.restaurantorderingwebapp.exception.AppException;
@@ -10,8 +11,8 @@ import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 import com.group2.restaurantorderingwebapp.repository.RoleRepository;
 import com.group2.restaurantorderingwebapp.repository.UserRepository;
-import com.group2.restaurantorderingwebapp.security.JwtTokenProvider;
 import com.group2.restaurantorderingwebapp.service.AuthenticationService;
+import com.group2.restaurantorderingwebapp.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,8 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,34 +31,45 @@ import java.util.Set;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
+    private final JwtService jwtService;
+
 
     @Override
-    public JwtAuthResponse login(LoginRequest loginRequest){
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmailOrPhone(), loginRequest.getPassword()
-        ));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtTokenProvider.generateToken(authentication);
-        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
-        jwtAuthResponse.setAccessToken(token);
-        return jwtAuthResponse;
+    public JwtAuthResponse login(LoginRequest loginRequest) {
+        User user = userRepository.findByEmailOrPhone(loginRequest.getEmailOrPhone()).orElseThrow(() -> new ResourceNotFoundException("User", "email or phone number", loginRequest.getEmailOrPhone()));
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_UNAUTHENTICATED);
+        }
+        try {
+
+          authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    loginRequest.getEmailOrPhone(), loginRequest.getPassword()
+            ));
+        } catch (Exception exception) {
+            throw new AppException(ErrorCode.USER_UNAUTHENTICATED);
+        }
+
+        String jwtToken = jwtService.generateToken(user);
+
+        return JwtAuthResponse.builder()
+                .accessToken(jwtToken)
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .expiredTime(new Timestamp(System.currentTimeMillis() +jwtService.getExpirationTime()))
+                .build();
     }
 
 
 
     @Override
     public String register(RegisterRequest registerRequest){
-        if (registerRequest.getEmail()!=null && userRepository.existsByEmail(registerRequest.getEmail())){
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
-        }
-        if (registerRequest.getPhoneNumber()!=null && userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())){
-            throw new AppException(ErrorCode.PHONE_EXISTED);
+        if (userRepository.existsByEmailOrPhone(registerRequest.getEmailOrPhone())){
+            throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
         User user = modelMapper.map(registerRequest, User.class);
@@ -68,9 +79,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role", "role's name","ROLE_USER"));
         roles.add(role);
         user.setRoles(roles);
-
-        user = userRepository.save(user);
-        user.setUsername(user.getFirstName()+"0"+user.getUserId());
 
         userRepository.save(user);
         return "User registered successfully!.";
