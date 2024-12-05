@@ -37,13 +37,13 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(),userDetails);
+    public String generateToken(UserDetails userDetails,Long time){
+        return generateToken(new HashMap<>(),userDetails,time);
     }
 
     @Override
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails){
-        return buildToken(extraClaims, userDetails, jwtExpiration);
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails,Long time){
+        return buildToken(extraClaims, userDetails, time);
     }
 
     @Override

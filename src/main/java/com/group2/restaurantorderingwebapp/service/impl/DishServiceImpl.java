@@ -1,5 +1,8 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group2.restaurantorderingwebapp.dto.request.DishRequest;
 import com.group2.restaurantorderingwebapp.dto.response.DishResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
@@ -11,6 +14,7 @@ import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 import com.group2.restaurantorderingwebapp.repository.CategoryRepository;
 import com.group2.restaurantorderingwebapp.repository.DishRepository;
 import com.group2.restaurantorderingwebapp.service.DishService;
+import com.group2.restaurantorderingwebapp.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -29,6 +33,8 @@ public class DishServiceImpl implements DishService {
     private final DishRepository dishRepository;
     private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;
+    private final RedisService redisService;
+    private final String KEY = "dish";
 
     @Override
     public DishResponse addDish(DishRequest dishRequest) {
@@ -43,11 +49,16 @@ public class DishServiceImpl implements DishService {
         }
         dish.setCategories(categories);
         dish = dishRepository.save(dish);
+        redisService.deleteAll(KEY);
         return modelMapper.map(dish,DishResponse.class);
     }
 
     @Override
     public PageCustom<DishResponse> getAllDishes(Pageable pageable) {
+        String field = "allDishes";
+        var json  = redisService.getHash(KEY,field);
+        if (json == null){
+
         Page<Dish> page = dishRepository.findAll(pageable);
         PageCustom<DishResponse> pageCustom = PageCustom.<DishResponse>builder()
                 .pageNo(page.getNumber())
@@ -55,14 +66,27 @@ public class DishServiceImpl implements DishService {
                 .totalPages(page.getTotalPages())
                 .pageContent(page.getContent().stream().map(dish->modelMapper.map(dish, DishResponse.class)).toList())
                 .build();
-
+        redisService.setHashRedis(KEY,field,redisService.convertToJson(pageCustom));
         return pageCustom;
+
+        }
+        // Chuyển JSON thành object
+        return (PageCustom<DishResponse>) redisService.convertToObject((String) json, PageCustom.class);
     }
 
     @Override
     public DishResponse getDishById(Long dishId) {
+        String field = "dishById:"+dishId;
+        var json  = redisService.getHash(KEY,field);
+        if (json == null){
+
         Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", dishId));
-        return modelMapper.map(dish, DishResponse.class);
+        DishResponse dishResponse = modelMapper.map(dish, DishResponse.class);
+        redisService.setHashRedis(KEY,field,redisService.convertToJson(dishResponse));
+        return dishResponse;
+        }
+        return redisService.convertToObject((String) json, DishResponse.class);
+
     }
 
     @Override
@@ -76,6 +100,7 @@ public class DishServiceImpl implements DishService {
         }
         dish.setCategories(categories);
         dish = dishRepository.save(dish);
+        redisService.deleteAll(KEY);
         return modelMapper.map(dish,DishResponse.class);
     }
 
@@ -83,14 +108,24 @@ public class DishServiceImpl implements DishService {
     public String deleteDish(Long dishId) {
         Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", dishId));
         dishRepository.delete(dish);
+        redisService.deleteAll(KEY);
         return "Dish with id: " +dishId+ " was deleted successfully";
     }
 
     @Override
     public List<DishResponse> getDishesByCategory(String categoryName) {
+        String field = "DishByCategoryName:" + categoryName;
+        var json  = redisService.getHash(KEY,field);
+        if (json == null){
+
         Category category = categoryRepository.findByCategoryName(categoryName).orElseThrow(() -> new ResourceNotFoundException("Category", "name", categoryName));
         List<Dish> dishes = dishRepository.findAllByCategories(category);
-        return dishes.stream().map(dish -> modelMapper.map(dish, DishResponse.class)).collect(Collectors.toList());
+        List<DishResponse> dishResponses =  dishes.stream().map(dish -> modelMapper.map(dish, DishResponse.class)).toList();
+        redisService.setHashRedis(KEY, field,redisService.convertToJson(dishResponses));
+        return dishResponses;
+        }
+        return (List<DishResponse>) redisService.convertToObject((String) json, List.class);
+
     }
 }
 

@@ -14,8 +14,6 @@ public class JwtAuthResponse {
     private String tokenType="Bearer";
     private String accessToken;
     private String refreshToken;
-    private Long userId;
-    private String username ;
+    private UserResponse user;
     private Timestamp expiredTime;
-    private Timestamp expiredRefreshTime;
 }

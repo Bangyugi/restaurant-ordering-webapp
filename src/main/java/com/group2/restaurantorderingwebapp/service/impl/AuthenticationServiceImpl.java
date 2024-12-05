@@ -17,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +33,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-
     private final JwtService jwtService;
 
 
@@ -54,12 +51,34 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.USER_UNAUTHENTICATED);
         }
 
-        String jwtToken = jwtService.generateToken(user);
+        String jwtToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24);
+        String refreshToken = jwtService.generateToken(user,jwtService.getExpirationTime()*24*2);
+        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
 
         return JwtAuthResponse.builder()
                 .accessToken(jwtToken)
-                .userId(user.getUserId())
-                .username(user.getUsername())
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .expiredTime(new Timestamp(System.currentTimeMillis() +jwtService.getExpirationTime()))
+                .build();
+    }
+
+    @Override
+    public JwtAuthResponse refreshToken(String refreshToken) {
+        if (jwtService.isTokenExpired(refreshToken)) {
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+        }
+         String username = jwtService.extractUsername(refreshToken);
+        User user = userRepository.findByEmailOrPhone(username).orElseThrow(() -> new ResourceNotFoundException("User", "email or phone number", username));
+        String accessToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24) ;
+        refreshToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24*2);
+
+        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+
+        return JwtAuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponse)
                 .expiredTime(new Timestamp(System.currentTimeMillis() +jwtService.getExpirationTime()))
                 .build();
     }
@@ -83,5 +102,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
         return "User registered successfully!.";
     }
+
 
 }

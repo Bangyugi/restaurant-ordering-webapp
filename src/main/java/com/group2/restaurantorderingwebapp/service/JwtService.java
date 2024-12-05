@@ -12,9 +12,9 @@ public interface JwtService {
 
     <T> T extractClaim(String token, Function<Claims, T> claimsResolver);
 
-    String generateToken(UserDetails userDetails);
+    String generateToken(UserDetails userDetails, Long time);
 
-    String generateToken(Map<String, Object> extraClaims, UserDetails userDetails);
+    String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, Long time);
 
     long getExpirationTime();
 
