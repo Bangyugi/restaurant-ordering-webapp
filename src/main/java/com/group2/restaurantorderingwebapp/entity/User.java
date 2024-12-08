@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -17,7 +18,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Entity
 @Table(name = "users")
 @Builder
@@ -51,11 +51,17 @@ public class User extends BaseEntity implements UserDetails {
     )
     private Set<Role> roles;
 
+    @JsonIgnore
     @OneToMany (mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Order> orders;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Ranking> rankings;
+
+    @JsonIgnore
+    @OneToMany (mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<Payment> payments;
 
 
     @Override

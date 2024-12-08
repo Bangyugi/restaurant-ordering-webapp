@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.group2.restaurantorderingwebapp.entity.Dish;
 import com.group2.restaurantorderingwebapp.entity.Position;
 import com.group2.restaurantorderingwebapp.entity.User;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderResponse {
     private Long orderId;
     private int quantity;
