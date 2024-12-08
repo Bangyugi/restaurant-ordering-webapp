@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.group2.restaurantorderingwebapp.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
     private Long userId;
     private String firstName;

@@ -27,4 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("from Order o where o.dish.dishId=:dishId and o.position.positionId=:positionId and o.status=:b")
     Optional<Order> findByDishAndPositionAndStatus(Long dishId, Long positionId, boolean b);
+
+
+    Optional<Order> findByOrderIdAndStatus(Long orderIds, boolean b);
 }

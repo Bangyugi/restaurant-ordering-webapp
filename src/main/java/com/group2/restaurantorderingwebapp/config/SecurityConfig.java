@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .cors(httpSecurityCorsConfigurer -> corsFilter())
                 .authorizeHttpRequests(
                         config->config
+//                                .anyRequest().permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("swagger-ui/index.html" +"/**"
                                         , "/v3/api-docs/**"
@@ -52,6 +53,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/api/order/{orderId}/update-user").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/api/rankings").hasRole("USER")
                                 .requestMatchers(HttpMethod.GET,"/api/users/{userId}").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/payment/**").hasAnyRole("ADMIN","MANAGER")
+                                .requestMatchers(HttpMethod.POST,"/api/payments/**").permitAll()
                                 .anyRequest().hasAnyRole("ADMIN","MANAGER")
                 )
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
