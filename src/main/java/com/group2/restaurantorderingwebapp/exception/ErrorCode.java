@@ -37,7 +37,9 @@ public enum ErrorCode {
     PHONE_NUMBER_CAN_NOT_UPDATE(400, "Phone number can not update", HttpStatus.BAD_REQUEST),
     USERNAME_EXISTED(400, "Username already exists", HttpStatus.BAD_REQUEST),
     USER_ALREADY_EXISTS(400, "User already exists", HttpStatus.BAD_REQUEST),
-    USER_EMAIL_OR_PHONE_CAN_NOT_CHANGE(400, "User email or phone can not change", HttpStatus.BAD_REQUEST);
+    USER_EMAIL_OR_PHONE_CAN_NOT_CHANGE(400, "User email or phone can not change", HttpStatus.BAD_REQUEST),
+    TOKEN_EXPIRED(400, "Token expired", HttpStatus.BAD_REQUEST);
+
 
     private int code;
     private String message;

@@ -18,5 +18,5 @@ public interface CategoryService {
 
     String deleteCategory(Long id);
 
-    List<CategoryResponse> getCategoryByCategoryName(String categoryName);
+   CategoryResponse getCategoryByCategoryName(String categoryName);
 }

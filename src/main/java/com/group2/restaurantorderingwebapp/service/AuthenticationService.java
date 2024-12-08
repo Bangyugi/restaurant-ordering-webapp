@@ -8,5 +8,7 @@ import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 public interface AuthenticationService {
     JwtAuthResponse login (LoginRequest loginRequest);
 
+    JwtAuthResponse refreshToken(String refreshToken);
+
     String register(RegisterRequest registerRequest);
 }

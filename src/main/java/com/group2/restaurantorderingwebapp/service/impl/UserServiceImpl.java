@@ -10,6 +10,7 @@ import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 import com.group2.restaurantorderingwebapp.repository.RoleRepository;
 import com.group2.restaurantorderingwebapp.repository.UserRepository;
+import com.group2.restaurantorderingwebapp.service.RedisService;
 import com.group2.restaurantorderingwebapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -33,6 +34,8 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RedisService redisService;
+    private final String KEY = "user";
 
     @Override
     public User createGuestUser(String username) {
@@ -42,8 +45,9 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByRoleName("ROLE_GUEST").orElseThrow(()->new ResourceNotFoundException("role","role's name","ROLE_GUEST"));
         roles.add(role);
         user.setRoles(roles);
-        user.setFirstName("Guest");
-        user.setLastName(LocalDateTime.now().toString());
+        user.setEmailOrPhone("guest"+ LocalDateTime.now().toString());
+        user.setPassword(passwordEncoder.encode("guest123"));
+        redisService.deleteAll(KEY);
         userRepository.save(user);
 
         return user;
@@ -51,21 +55,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long userId) {
+        String field = "userById:" + userId;
+        var json = redisService.getHash(KEY, field);
+        if (json==null){
+
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        return modelMapper.map(user, UserResponse.class);
+        UserResponse userResponse =  modelMapper.map(user, UserResponse.class);
+        redisService.setHashRedis(KEY, field,redisService.convertToJson(userResponse));
+        return userResponse;
+        }
+        return redisService.convertToObject((String) json,UserResponse.class);
     }
 
 
     @Override
     public PageCustom<UserResponse> getAllUser(Pageable pageable) {
+        String field = "allUser";
+        var json = redisService.getHash(KEY,field);
+        if (json == null){
+
         Page<User> page = userRepository.findAll(pageable);
         PageCustom<UserResponse> pageCustom = PageCustom.<UserResponse>builder()
-                .pageNo(page.getNumber())
+                .pageNo(page.getNumber() + 1)
                 .pageSize(page.getSize())
                 .totalPages(page.getTotalPages())
                 .pageContent(page.getContent().stream().map(user->modelMapper.map(user, UserResponse.class)).toList())
                 .build();
+        redisService.setHashRedis(KEY,field,redisService.convertToJson(pageCustom));
         return pageCustom;
+        }
+        return (PageCustom<UserResponse>) redisService.convertToObject((String) json,PageCustom.class);
     }
 
     @Override
@@ -80,7 +99,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role", "role's name","ROLE_USER"));
         roles.add(role);
         user.setRoles(roles);
-
+        redisService.deleteAll(KEY);
 
   
 
@@ -90,6 +109,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public String deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        redisService.deleteAll(KEY);
+        userRepository.delete(user);
         return "User with id: " +userId+ " was deleted successfully";
     }
 }
