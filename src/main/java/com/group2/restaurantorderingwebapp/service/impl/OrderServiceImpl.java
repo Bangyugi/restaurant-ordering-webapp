@@ -2,6 +2,8 @@ package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.response.*;
 import com.group2.restaurantorderingwebapp.entity.*;
+import com.group2.restaurantorderingwebapp.exception.AppException;
+import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.repository.DishRepository;
 import com.group2.restaurantorderingwebapp.repository.OrderRepository;
 import com.group2.restaurantorderingwebapp.repository.PositonRepository;
@@ -34,6 +36,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
+        if (orderRepository.existsByDishAndPositionAndStatus(orderRequest.getDishId(),orderRequest.getPositionId(),false))
+        {
+            Order existingOrder = orderRepository.findByDishAndPositionAndStatus(orderRequest.getDishId(),orderRequest.getPositionId(),false).orElseThrow(()->new AppException(ErrorCode.ORDER_NOT_EXISTED));
+            existingOrder.setQuantity(existingOrder.getQuantity()+orderRequest.getQuantity());
+            existingOrder.setTotalPrice(existingOrder.getTotalPrice()+orderRequest.getQuantity()*existingOrder.getDish().getPrice());
+            existingOrder.setTimeServing(existingOrder.getTimeServing()+orderRequest.getQuantity()*existingOrder.getDish().getCookingTime());
+            orderRepository.save(existingOrder);
+            return modelMapper.map(existingOrder, OrderResponse.class);
+        }
+
+        Position position =positonRepository.findById(orderRequest.getPositionId()).orElseThrow(() -> new ResourceNotFoundException("Position", "id", orderRequest.getPositionId()));
+        Dish dish = dishRepository.findById(orderRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
         Order order = new Order();
         User user = new User();
         if (orderRequest.getUserId() != null)
@@ -44,11 +58,10 @@ public class OrderServiceImpl implements OrderService {
             LocalDateTime now = LocalDateTime.now();
             user = userService.createGuestUser("guest"+ now.toString());
         }
+
             order.setUser(user);
-        Position position =positonRepository.findById(orderRequest.getPositionId()).orElseThrow(() -> new ResourceNotFoundException("Position", "id", orderRequest.getPositionId()));
         order.setPosition(position);
         order.setStatus(false);
-        Dish dish = dishRepository.findById(orderRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
         order.setDish(dish);
         order.setQuantity(orderRequest.getQuantity());
         Long timeServing = dish.getCookingTime()*orderRequest.getQuantity();
@@ -113,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PageCustom<OrderResponse> getOrdersByPosition(Long positionId, Pageable pageable) {
         Position position = positonRepository.findById(positionId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
-        Page<Order> orders = orderRepository.findAllByPosition(position,pageable);
+        Page<Order> orders = orderRepository.findAllByPositionAndStatus(position,false,pageable);
         PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
                 .pageNo(orders.getNumber()+1)
                 .pageSize(orders.getSize())

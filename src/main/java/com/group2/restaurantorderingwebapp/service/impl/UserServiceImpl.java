@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
         Page<User> page = userRepository.findAll(pageable);
         PageCustom<UserResponse> pageCustom = PageCustom.<UserResponse>builder()
-                .pageNo(page.getNumber())
+                .pageNo(page.getNumber() + 1)
                 .pageSize(page.getSize())
                 .totalPages(page.getTotalPages())
                 .pageContent(page.getContent().stream().map(user->modelMapper.map(user, UserResponse.class)).toList())
@@ -110,6 +110,7 @@ public class UserServiceImpl implements UserService {
     public String deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         redisService.deleteAll(KEY);
+        userRepository.delete(user);
         return "User with id: " +userId+ " was deleted successfully";
     }
 }
