@@ -21,4 +21,6 @@ public interface DishService {
     String deleteDish(Long dishId);
 
     List<DishResponse> getDishesByCategory(String categoryName);
+
+    PageCustom<DishResponse> searchDish(String dishName, Pageable pageable);
 }

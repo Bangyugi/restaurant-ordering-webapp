@@ -83,61 +83,54 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse payCallBackHandle(HttpServletRequest request) {
 
-        System.out.println("orderMap: " + orderMap);
-        System.out.println("userMap: " + userMap);
+
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
-        System.out.println("TxnRef: " + vnp_TxnRef);
+
         String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
-        System.out.println("ResponseCode: " + vnp_ResponseCode);
+
         if (!vnp_ResponseCode.equals("00")) {
             throw new AppException(ErrorCode.PAYMENT_FAIL);
 
         }
         List<Order> orders = orderMap.get(Integer.valueOf(vnp_TxnRef));
-        List<Order> saveOrders = new ArrayList<>();
-        System.out.println("Orders: " + orders);
         Payment payment = new Payment();
         payment.setPaymentMethod("Vn-Pay");
         if (orders != null) {
+            List<Order> saveOrders = new ArrayList<>();
             for (Order order : orders) {
-                System.err.println(order.getOrderId());
-                System.out.println(order.isStatus());
+
                 Order existingOrder = orderRepository.findByOrderIdAndStatus(order.getOrderId(), false).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
                 Dish dish = existingOrder.getDish();
                 dish.setOrderAmount(dish.getOrderAmount() + existingOrder.getQuantity());
                 dishRepository.save(dish);
+
                 existingOrder.setStatus(true);
-                 existingOrder= orderRepository.save(existingOrder);
-                 saveOrders.add(existingOrder);
+                existingOrder = orderRepository.save(existingOrder);
+                saveOrders.add(existingOrder);
             }
             payment.setOrder(saveOrders);
         }
         User user = userMap.get(Integer.valueOf(vnp_TxnRef));
-        System.out.println("User: " + user);
+
         user = userRepository.findById(user.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-            payment.setUser(user);
+        payment.setUser(user);
+
         payment = paymentRepository.save(payment);
+
         userMap.remove(Integer.valueOf(vnp_TxnRef));
         orderMap.remove(Integer.valueOf(vnp_TxnRef));
 
-        return PaymentResponse.builder()
-                .paymentId(payment.getPaymentId())
-                .paymentMethod(payment.getPaymentMethod())
-                .orders(payment.getOrder().stream().map(order -> modelMapper.map(order, OrderResponse.class)).collect(Collectors.toSet()))
-                .user(modelMapper.map(payment.getUser(), UserResponse.class))
-                .build();
-
+        PaymentResponse paymentResponse = modelMapper.map(payment, PaymentResponse.class);
+        paymentResponse.setOrders(payment.getOrder().stream().map(order -> modelMapper.map(order, OrderResponse.class)).collect(Collectors.toList()));
+        return paymentResponse;
     }
 
     @Override
     public PaymentResponse getPaymentById(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_EXISTED));
-        return PaymentResponse.builder()
-                .paymentId(payment.getPaymentId())
-                .paymentMethod(payment.getPaymentMethod())
-                .orders(payment.getOrder().stream().map(order -> modelMapper.map(order, OrderResponse.class)).collect(Collectors.toSet()))
-                .user(modelMapper.map(payment.getUser(), UserResponse.class))
-                .build();
+        PaymentResponse paymentResponse = modelMapper.map(payment, PaymentResponse.class);
+        paymentResponse.setOrders(payment.getOrder().stream().map(order -> modelMapper.map(order, OrderResponse.class)).collect(Collectors.toList()));
+        return paymentResponse;
     }
 
     @Override
@@ -145,9 +138,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         Page<Payment> page = paymentRepository.findAll(pageable);
         PageCustom<PaymentResponse> pageCustom = PageCustom.<PaymentResponse>builder()
-                .pageNo(page.getNumber()+1)
+                .pageNo(page.getNumber() + 1)
                 .pageSize(page.getSize())
-                .pageContent(page.getContent().stream().map(payment->modelMapper.map(payment, PaymentResponse.class)).toList())
+                .pageContent(page.getContent().stream().map(payment -> modelMapper.map(payment, PaymentResponse.class)).toList())
                 .totalPages(page.getTotalPages())
                 .build();
         return pageCustom;
@@ -159,9 +152,9 @@ public class PaymentServiceImpl implements PaymentService {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Page<Payment> page = paymentRepository.findAllByUser(user, pageable);
         PageCustom<PaymentResponse> pageCustom = PageCustom.<PaymentResponse>builder()
-                .pageNo(page.getNumber()+1)
+                .pageNo(page.getNumber() + 1)
                 .pageSize(page.getSize())
-                .pageContent(page.getContent().stream().map(payment->modelMapper.map(payment, PaymentResponse.class)).toList())
+                .pageContent(page.getContent().stream().map(payment -> modelMapper.map(payment, PaymentResponse.class)).toList())
                 .totalPages(page.getTotalPages())
                 .build();
         return pageCustom;

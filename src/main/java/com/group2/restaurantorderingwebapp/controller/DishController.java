@@ -76,4 +76,17 @@ public class DishController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse> searchDish(
+            @RequestParam ("name") String dishName,
+            @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+            @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy",defaultValue = "dishName", required = false) String sortBy
+
+    ){
+        Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
+        ApiResponse apiResponse = ApiResponse.success(dishService.searchDish(dishName, pageable));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
 }

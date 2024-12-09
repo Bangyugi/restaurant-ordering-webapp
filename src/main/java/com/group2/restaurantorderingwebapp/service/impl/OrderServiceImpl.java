@@ -36,43 +36,41 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
-        if (orderRepository.existsByDishAndPositionAndStatus(orderRequest.getDishId(),orderRequest.getPositionId(),false))
-        {
-            Order existingOrder = orderRepository.findByDishAndPositionAndStatus(orderRequest.getDishId(),orderRequest.getPositionId(),false).orElseThrow(()->new AppException(ErrorCode.ORDER_NOT_EXISTED));
-            existingOrder.setQuantity(existingOrder.getQuantity()+orderRequest.getQuantity());
-            existingOrder.setTotalPrice(existingOrder.getTotalPrice()+orderRequest.getQuantity()*existingOrder.getDish().getPrice());
-            existingOrder.setTimeServing(existingOrder.getTimeServing()+orderRequest.getQuantity()*existingOrder.getDish().getCookingTime());
-            orderRepository.save(existingOrder);
-            return modelMapper.map(existingOrder, OrderResponse.class);
-        }
-
-        Position position =positonRepository.findById(orderRequest.getPositionId()).orElseThrow(() -> new ResourceNotFoundException("Position", "id", orderRequest.getPositionId()));
-        Dish dish = dishRepository.findById(orderRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
-        Order order = new Order();
-        User user = new User();
-        if (orderRequest.getUserId() != null)
-        {
+        User user;
+        if (orderRequest.getUserId() != null) {
             user = userRepository.findById(orderRequest.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", orderRequest.getUserId()));
-        }
-        else {
+        } else {
             LocalDateTime now = LocalDateTime.now();
-            user = userService.createGuestUser("guest"+ now.toString());
+            user = userService.createGuestUser("guest" + now);
+        }
+        if (orderRepository.existsByDishAndPositionAndStatus(orderRequest.getDishId(), orderRequest.getPositionId(), false)) {
+            Order existingOrder = orderRepository.findByDishAndPositionAndStatus(orderRequest.getDishId(), orderRequest.getPositionId(), false).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
+            existingOrder.setQuantity(existingOrder.getQuantity() + orderRequest.getQuantity());
+            existingOrder.setTotalPrice(existingOrder.getTotalPrice() + orderRequest.getQuantity() * existingOrder.getDish().getPrice());
+            existingOrder.setTimeServing(existingOrder.getTimeServing() + orderRequest.getQuantity() * existingOrder.getDish().getCookingTime());
+            orderRepository.save(existingOrder);
+            OrderResponse orderResponse = modelMapper.map(existingOrder, OrderResponse.class);
+            orderResponse.setUser(modelMapper.map(user, UserResponse.class));
+            return orderResponse;
         }
 
-            order.setUser(user);
+        Position position = positonRepository.findById(orderRequest.getPositionId()).orElseThrow(() -> new ResourceNotFoundException("Position", "id", orderRequest.getPositionId()));
+        Dish dish = dishRepository.findById(orderRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
+
+        Order order = new Order();
+        order.setUser(user);
         order.setPosition(position);
         order.setStatus(false);
         order.setDish(dish);
         order.setQuantity(orderRequest.getQuantity());
-        Long timeServing = dish.getCookingTime()*orderRequest.getQuantity();
-        Double totalPrice = dish.getPrice()*orderRequest.getQuantity();
+        Long timeServing = dish.getCookingTime() * orderRequest.getQuantity();
+        Double totalPrice = dish.getPrice() * orderRequest.getQuantity();
         order.setTimeServing(timeServing);
         order.setTotalPrice(totalPrice);
+
         order = orderRepository.save(order);
+
         OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
-        orderResponse.setUser(modelMapper.map(user, UserResponse.class));
-        orderResponse.setDish(modelMapper.map(dish, DishResponse.class));
-        orderResponse.setPosition(modelMapper.map(position, PositionResponse.class));
         return orderResponse;
     }
 
@@ -104,13 +102,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageCustom<OrderResponse> getAllOrders(Pageable pageable) {
-       Page<Order> page=orderRepository.findAll(pageable);
-       PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
-               .pageNo(page.getNumber()+1)
-               .pageSize(page.getSize())
-               .totalPages(page.getTotalPages())
-               .pageContent(page.getContent().stream().map(order->modelMapper.map(order, OrderResponse.class)).toList())
-               .build();
+        Page<Order> page = orderRepository.findAll(pageable);
+        PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
+                .pageNo(page.getNumber() + 1)
+                .pageSize(page.getSize())
+                .totalPages(page.getTotalPages())
+                .pageContent(page.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
+                .build();
 
         return pageCustom;
 
@@ -126,12 +124,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PageCustom<OrderResponse> getOrdersByPosition(Long positionId, Pageable pageable) {
         Position position = positonRepository.findById(positionId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
-        Page<Order> orders = orderRepository.findAllByPositionAndStatus(position,false,pageable);
+        Page<Order> orders = orderRepository.findAllByPositionAndStatus(position, false, pageable);
         PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
-                .pageNo(orders.getNumber()+1)
+                .pageNo(orders.getNumber() + 1)
                 .pageSize(orders.getSize())
                 .totalPages(orders.getTotalPages())
-                .pageContent(orders.getContent().stream().map(order->modelMapper.map(order, OrderResponse.class)).toList())
+                .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
                 .build();
         return pageCustom;
     }
@@ -149,7 +147,6 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         return pageCustom;
     }
-
 
 
 }

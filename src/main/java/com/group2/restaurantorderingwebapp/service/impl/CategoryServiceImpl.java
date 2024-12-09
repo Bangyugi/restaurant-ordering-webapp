@@ -58,15 +58,15 @@ public class CategoryServiceImpl implements CategoryService {
       return redisService.convertToObject((String) json, CategoryResponse.class);
   }
 
-  @Override
-    public List<CategoryResponse> getAllCategory(){
+    @Override
+    public List<CategoryResponse> getAllCategory() {
         String field = "allCategory";
-        var json  = redisService.getHash(KEY,field);
-        if (json != null){
+        var json = redisService.getHash(KEY, field);
+        if (json == null) {
 
-        List<CategoryResponse> categories = categoryRepository.findAll().stream().map(category -> modelMapper.map(category, CategoryResponse.class)).toList();
-        redisService.setHashRedis(KEY,field,redisService.convertToJson(categories));
-        return categories;
+            List<CategoryResponse> categories = categoryRepository.findAll().stream().map(category -> modelMapper.map(category, CategoryResponse.class)).toList();
+            redisService.setHashRedis(KEY, field, redisService.convertToJson(categories));
+            return categories;
         }
         return (List<CategoryResponse>) redisService.convertToObject((String) json, List.class);
 

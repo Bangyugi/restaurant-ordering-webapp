@@ -53,8 +53,10 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/api/order/{orderId}/update-user").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/api/rankings").hasRole("USER")
                                 .requestMatchers(HttpMethod.GET,"/api/users/{userId}").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/api/payment/**").hasAnyRole("ADMIN","MANAGER")
+                                .requestMatchers(HttpMethod.GET,"/api/payments/{paymentId}").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/payments/user/{userId}").hasRole("USER")
                                 .requestMatchers(HttpMethod.POST,"/api/payments/**").permitAll()
+
                                 .anyRequest().hasAnyRole("ADMIN","MANAGER")
                 )
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
