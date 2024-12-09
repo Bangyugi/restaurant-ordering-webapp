@@ -1,8 +1,5 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group2.restaurantorderingwebapp.dto.request.DishRequest;
 import com.group2.restaurantorderingwebapp.dto.response.DishResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
@@ -24,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +57,7 @@ public class DishServiceImpl implements DishService {
 
         Page<Dish> page = dishRepository.findAll(pageable);
         PageCustom<DishResponse> pageCustom = PageCustom.<DishResponse>builder()
-                .pageNo(page.getNumber())
+                .pageNo(page.getNumber()+1)
                 .pageSize(page.getSize())
                 .totalPages(page.getTotalPages())
                 .pageContent(page.getContent().stream().map(dish->modelMapper.map(dish, DishResponse.class)).toList())
@@ -126,6 +122,24 @@ public class DishServiceImpl implements DishService {
         }
         return (List<DishResponse>) redisService.convertToObject((String) json, List.class);
 
+    }
+
+    @Override
+    public PageCustom<DishResponse> searchDish(String dishName, Pageable pageable) {
+        String field = "searchDish:" + dishName;
+        var json = redisService.getHash(KEY, field);
+        if (json == null) {
+            Page<Dish> page = dishRepository.findAllByDishNameContainingIgnoreCase(dishName, pageable);
+            PageCustom<DishResponse> pageCustom = PageCustom.<DishResponse>builder()
+                    .pageNo(page.getNumber()+1)
+                    .pageSize(page.getSize())
+                    .totalPages(page.getTotalPages())
+                    .pageContent(page.getContent().stream().map(dish -> modelMapper.map(dish, DishResponse.class)).toList())
+                    .build();
+            redisService.setHashRedis(KEY, field, redisService.convertToJson(pageCustom));
+            return pageCustom;
+        }
+        return (PageCustom<DishResponse>) redisService.convertToObject((String) json, PageCustom.class);
     }
 }
 

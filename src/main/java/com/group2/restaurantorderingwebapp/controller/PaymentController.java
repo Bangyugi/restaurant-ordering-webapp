@@ -5,6 +5,9 @@ import com.group2.restaurantorderingwebapp.dto.response.ApiResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PaymentResponse;
 import com.group2.restaurantorderingwebapp.dto.response.VnPayResponse;
 import com.group2.restaurantorderingwebapp.service.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -23,10 +26,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
+@Tag(name = "Payment", description = "Payment API")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
+    @Operation(summary = "Create Payment", description = "Create Payment API")
     @PostMapping("/vn-pay")
     public ResponseEntity<VnPayResponse> createPayment(@RequestBody @Valid PaymentRequest paymentRequest, HttpServletRequest request) throws Exception {
 
@@ -34,13 +39,15 @@ public class PaymentController {
 
     }
 
-    @PostMapping("/vn-pay-callback")
+    @GetMapping("/vn-pay-callback")
+    @Operation(summary = "Payment Callback", description = "Payment Callback API")
     public ResponseEntity<?> payCallBackHandle(HttpServletRequest request) {
-
+        System.out.println(request.getParameter("vnp_TxnRef"));
         return new ResponseEntity<>(paymentService.payCallBackHandle(request), HttpStatus.CREATED);
     }
 
     @GetMapping("/{paymentId}")
+    @Operation(summary = "Get Payment", description = "Get Payment API")
     public ResponseEntity<ApiResponse> getPaymentById(@PathVariable Long paymentId) {
 
         ApiResponse apiResponse = ApiResponse.success(paymentService.getPaymentById(paymentId));
@@ -48,6 +55,7 @@ public class PaymentController {
     }
 
     @GetMapping("/user/{userId}")
+    @Operation(summary = "Get Payment by User", description = "Get Payment by User API")
     public ResponseEntity<ApiResponse> getPaymentByUserId(
             @PathVariable Long userId,
             @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
@@ -60,6 +68,8 @@ public class PaymentController {
     }
 
     @GetMapping()
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Get All Payment", description = "Get All Payment API")
     public ResponseEntity<ApiResponse> getAllPayment(
             @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
