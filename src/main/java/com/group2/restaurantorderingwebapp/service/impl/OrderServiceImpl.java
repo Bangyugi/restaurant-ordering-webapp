@@ -9,6 +9,7 @@ import com.group2.restaurantorderingwebapp.repository.OrderRepository;
 import com.group2.restaurantorderingwebapp.repository.PositonRepository;
 import com.group2.restaurantorderingwebapp.repository.UserRepository;
 import com.group2.restaurantorderingwebapp.service.OrderService;
+import com.group2.restaurantorderingwebapp.service.RedisService;
 import com.group2.restaurantorderingwebapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -19,8 +20,6 @@ import com.group2.restaurantorderingwebapp.dto.request.OrderRequest;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +30,10 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final PositonRepository positonRepository;
 
+    private final RedisService redisService;
     private final UserService userService;
+
+    private final static String KEY = "order";
 
 
     @Override
@@ -43,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
             LocalDateTime now = LocalDateTime.now();
             user = userService.createGuestUser("guest" + now);
         }
+
         if (orderRepository.existsByDishAndPositionAndStatus(orderRequest.getDishId(), orderRequest.getPositionId(), false)) {
             Order existingOrder = orderRepository.findByDishAndPositionAndStatus(orderRequest.getDishId(), orderRequest.getPositionId(), false).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
             existingOrder.setQuantity(existingOrder.getQuantity() + orderRequest.getQuantity());
@@ -51,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(existingOrder);
             OrderResponse orderResponse = modelMapper.map(existingOrder, OrderResponse.class);
             orderResponse.setUser(modelMapper.map(user, UserResponse.class));
+            redisService.deleteAll(KEY);
             return orderResponse;
         }
 
@@ -71,18 +75,39 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
 
         OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
+        redisService.deleteAll(KEY);
         return orderResponse;
     }
 
 
     @Override
-    public String updateOrderStatus(Long id) {
+    public String updatePaymentStatus(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
         order.setStatus(true);
         orderRepository.save(order);
-
-        return "Updated order status successfully";
+        redisService.deleteAll(KEY);
+        return "Updated pay status successfully";
     }
+
+    @Override
+    public String updateOrderStatus(Long id){
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        order.setOrderStatus(true);
+        orderRepository.save(order);
+        redisService.deleteAll(KEY);
+        return "Update order status successfully";
+    }
+
+    @Override
+    public String updateRatingStatus(Long id){
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        order.setRatingStatus(true);
+        orderRepository.save(order);
+        redisService.deleteAll(KEY);
+        return "Update rating status successfully";
+    }
+
+
 
     @Override
     public String updateOrderUser(Long id, Long userId) {
@@ -90,62 +115,93 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         order.setUser(user);
         orderRepository.save(order);
+        redisService.deleteAll(KEY);
         return "Updated order user successfully";
     }
 
     @Override
     public OrderResponse getOrderById(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
-        OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
-        return orderResponse;
+        String field = "orderById:" + id;
+        var json = redisService.getHash(KEY, field);
+        if (json == null) {
+
+            Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+            OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
+            redisService.setHashRedis(KEY, field, redisService.convertToJson(orderResponse));
+            return orderResponse;
+        }
+        return redisService.convertToObject((String) json, OrderResponse.class);
     }
 
     @Override
     public PageCustom<OrderResponse> getAllOrders(Pageable pageable) {
-        Page<Order> page = orderRepository.findAll(pageable);
-        PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
-                .pageNo(page.getNumber() + 1)
-                .pageSize(page.getSize())
-                .totalPages(page.getTotalPages())
-                .pageContent(page.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
-                .build();
+        String field = "allOrders" + pageable.toString();
+        var json = redisService.getHash(KEY, field);
+        if (json == null) {
 
-        return pageCustom;
+            Page<Order> page = orderRepository.findAll(pageable);
+            PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
+                    .pageNo(page.getNumber() + 1)
+                    .pageSize(page.getSize())
+                    .totalPages(page.getTotalPages())
+                    .pageContent(page.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
+                    .build();
+            redisService.setHashRedis(KEY, field, redisService.convertToJson(pageCustom));
+            return pageCustom;
+        }
+        return redisService.convertToObject((String) json, PageCustom.class);
 
     }
+
+
 
     @Override
     public String deleteOrder(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
         orderRepository.delete(order);
+        redisService.deleteAll(KEY);
         return "Deleted order successfully";
     }
 
     @Override
     public PageCustom<OrderResponse> getOrdersByPosition(Long positionId, Pageable pageable) {
-        Position position = positonRepository.findById(positionId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
-        Page<Order> orders = orderRepository.findAllByPositionAndStatus(position, false, pageable);
-        PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
-                .pageNo(orders.getNumber() + 1)
-                .pageSize(orders.getSize())
-                .totalPages(orders.getTotalPages())
-                .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
-                .build();
-        return pageCustom;
+        String field = "getOrdersByPosition:" + positionId + pageable.toString();
+        var json = redisService.getHash(KEY, field);
+        if (json == null) {
+
+            Position position = positonRepository.findById(positionId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
+            Page<Order> orders = orderRepository.findAllByPositionAndStatus(position, false, pageable);
+            PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
+                    .pageNo(orders.getNumber() + 1)
+                    .pageSize(orders.getSize())
+                    .totalPages(orders.getTotalPages())
+                    .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
+                    .build();
+            redisService.setHashRedis(KEY, field, redisService.convertToJson(pageCustom));
+            return pageCustom;
+        }
+        return redisService.convertToObject((String) json, PageCustom.class);
     }
 
 
     @Override
     public PageCustom<OrderResponse> getOrdersByUser(Long userId, Pageable pageable) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", userId));
-        Page<Order> orders = orderRepository.findAllByUser(user, pageable);
-        PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
-                .pageNo(orders.getNumber() + 1)
-                .pageSize(orders.getSize())
-                .totalPages(orders.getTotalPages())
-                .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
-                .build();
-        return pageCustom;
+        String field = "getOrdersByUser:" + userId + pageable.toString();
+        var json = redisService.getHash(KEY, field);
+        if (json == null) {
+
+            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", userId));
+            Page<Order> orders = orderRepository.findAllByUser(user, pageable);
+            PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
+                    .pageNo(orders.getNumber() + 1)
+                    .pageSize(orders.getSize())
+                    .totalPages(orders.getTotalPages())
+                    .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
+                    .build();
+            redisService.setHashRedis(KEY, field, redisService.convertToJson(pageCustom));
+            return pageCustom;
+        }
+        return redisService.convertToObject((String) json, PageCustom.class);
     }
 
 

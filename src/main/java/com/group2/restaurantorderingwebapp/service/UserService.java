@@ -23,5 +23,7 @@ public interface UserService {
 
     UserResponse updateUser(Long id, UserRequest userRequest);
 
+    UserResponse changePassword(Long userId, String password);
+
     String deleteUser(Long id);
 }

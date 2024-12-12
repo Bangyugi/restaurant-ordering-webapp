@@ -16,4 +16,6 @@ public interface RedisService {
     void deleteAll(String key) ;
     void delete(String key, String field) ;
     void setTTL(String key, Long timeToLive);
+
+    void flushAll();
 }

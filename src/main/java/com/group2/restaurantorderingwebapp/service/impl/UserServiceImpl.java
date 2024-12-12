@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageCustom<UserResponse> getAllUser(Pageable pageable) {
-        String field = "allUser";
+        String field = "allUser" + pageable.toString();
         var json = redisService.getHash(KEY,field);
         if (json == null){
 
@@ -94,15 +93,15 @@ public class UserServiceImpl implements UserService {
             throw new AppException(ErrorCode.USER_EMAIL_OR_PHONE_CAN_NOT_CHANGE);
         }
         modelMapper.map(userRequest,user);
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        Set<Role> roles = new HashSet<>();
-        Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(()->new ResourceNotFoundException("role", "role's name","ROLE_USER"));
-        roles.add(role);
-        user.setRoles(roles);
         redisService.deleteAll(KEY);
+        return modelMapper.map(userRepository.save(user),UserResponse.class);
+    }
 
-  
-
+    @Override
+    public UserResponse changePassword(Long userId, String password) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        user.setPassword(passwordEncoder.encode(password));
+        redisService.deleteAll(KEY);
         return modelMapper.map(userRepository.save(user),UserResponse.class);
     }
 

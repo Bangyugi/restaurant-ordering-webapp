@@ -5,16 +5,17 @@ import com.group2.restaurantorderingwebapp.dto.response.OrderResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Map;
-
 public interface OrderService  {
 
 
 
     OrderResponse createOrder(OrderRequest orderRequest);
 
+    String updatePaymentStatus(Long id);
+
     String updateOrderStatus(Long id);
+
+    String updateRatingStatus(Long id);
 
     String updateOrderUser(Long id, Long userId);
 

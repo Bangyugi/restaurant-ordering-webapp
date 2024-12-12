@@ -52,7 +52,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, Long jwtExpiration){
-        System.err.println(userDetails.getUsername());
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

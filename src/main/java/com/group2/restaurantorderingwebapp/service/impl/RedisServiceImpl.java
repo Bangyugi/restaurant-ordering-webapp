@@ -70,4 +70,9 @@ public class RedisServiceImpl implements RedisService {
     public void setTTL(String key, Long timeToLive) {
         redisTemplate.expire(key, timeToLive, TimeUnit.MILLISECONDS);
     }
+
+    @Override
+    public void flushAll() {
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
+    }
 }

@@ -14,6 +14,8 @@ import com.group2.restaurantorderingwebapp.repository.OrderRepository;
 import com.group2.restaurantorderingwebapp.repository.PaymentRepository;
 import com.group2.restaurantorderingwebapp.repository.UserRepository;
 import com.group2.restaurantorderingwebapp.service.PaymentService;
+import com.group2.restaurantorderingwebapp.service.RedisService;
+import com.group2.restaurantorderingwebapp.service.UserService;
 import com.group2.restaurantorderingwebapp.util.VnPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
+    private final UserService userService;
 
     private final VnPayConfig vnPayConfig;
     private final OrderRepository orderRepository;
@@ -36,6 +40,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserRepository userRepository;
     private final DishRepository dishRepository;
     private final PaymentRepository paymentRepository;
+    private final RedisService redisService;
+    private final String KEY = "payment";
 
     Map<Integer, List<Order>> orderMap = new HashMap<>();
     Map<Integer, User> userMap = new HashMap<>();
@@ -55,7 +61,15 @@ public class PaymentServiceImpl implements PaymentService {
         String vnp_TxnRef = VnPayUtil.getRandomNumber(8);
         orderMap.put(Integer.valueOf(vnp_TxnRef), orders);
 
-        User user = userRepository.findById(paymentRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = new User();
+        if (paymentRequest.getUserId() != null) {
+            user = userRepository.findById(paymentRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        }
+        else {
+            LocalDateTime now = LocalDateTime.now();
+            user = userService.createGuestUser("guest" + now);
+        }
+
         userMap.put(Integer.valueOf(vnp_TxnRef), user);
 
         String bankCode = request.getParameter("bankCode");
@@ -81,12 +95,14 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse payCallBackHandle(HttpServletRequest request) {
+    public Payment payCallBackHandle(HttpServletRequest request) {
 
 
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
 
         String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
+
+        String amount = request.getParameter("vnp_Amount");
 
         if (!vnp_ResponseCode.equals("00")) {
             throw new AppException(ErrorCode.PAYMENT_FAIL);
@@ -112,6 +128,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
         User user = userMap.get(Integer.valueOf(vnp_TxnRef));
 
+        payment.setAmount(Long.valueOf(amount));
         user = userRepository.findById(user.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         payment.setUser(user);
 
@@ -120,21 +137,32 @@ public class PaymentServiceImpl implements PaymentService {
         userMap.remove(Integer.valueOf(vnp_TxnRef));
         orderMap.remove(Integer.valueOf(vnp_TxnRef));
 
-        PaymentResponse paymentResponse = modelMapper.map(payment, PaymentResponse.class);
-        paymentResponse.setOrders(payment.getOrder().stream().map(order -> modelMapper.map(order, OrderResponse.class)).collect(Collectors.toList()));
-        return paymentResponse;
+
+        redisService.deleteAll(KEY);
+        return payment;
     }
 
     @Override
     public PaymentResponse getPaymentById(Long paymentId) {
+        String field = "paymentById"+ paymentId;
+        var json = redisService.getHash(KEY,field);
+        if (json == null){
+
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_EXISTED));
         PaymentResponse paymentResponse = modelMapper.map(payment, PaymentResponse.class);
         paymentResponse.setOrders(payment.getOrder().stream().map(order -> modelMapper.map(order, OrderResponse.class)).collect(Collectors.toList()));
+        redisService.setHashRedis(KEY,field,redisService.convertToJson(paymentResponse));
         return paymentResponse;
+        }
+        return redisService.convertToObject((String) json,PaymentResponse.class);
     }
 
     @Override
     public PageCustom<PaymentResponse> getAllPayment(Pageable pageable) {
+        String field = "allPayment"+pageable.toString();
+        var json = redisService.getHash(KEY,field);
+        if (json == null)
+        {
 
         Page<Payment> page = paymentRepository.findAll(pageable);
         PageCustom<PaymentResponse> pageCustom = PageCustom.<PaymentResponse>builder()
@@ -143,12 +171,19 @@ public class PaymentServiceImpl implements PaymentService {
                 .pageContent(page.getContent().stream().map(payment -> modelMapper.map(payment, PaymentResponse.class)).toList())
                 .totalPages(page.getTotalPages())
                 .build();
+        redisService.setHashRedis(KEY,field,redisService.convertToJson(pageCustom));
         return pageCustom;
+        }
+        return redisService.convertToObject((String) json,PageCustom.class);
 
     }
 
     @Override
     public PageCustom<PaymentResponse> getPaymentByUser(Long userId, Pageable pageable) {
+        String field = "paymentByUser"+userId+pageable.toString();
+        var json = redisService.getHash(KEY,field);
+        if (json == null){
+
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Page<Payment> page = paymentRepository.findAllByUser(user, pageable);
         PageCustom<PaymentResponse> pageCustom = PageCustom.<PaymentResponse>builder()
@@ -157,7 +192,10 @@ public class PaymentServiceImpl implements PaymentService {
                 .pageContent(page.getContent().stream().map(payment -> modelMapper.map(payment, PaymentResponse.class)).toList())
                 .totalPages(page.getTotalPages())
                 .build();
+        redisService.setHashRedis(KEY,field,redisService.convertToJson(pageCustom));
         return pageCustom;
+        }
+        return redisService.convertToObject((String) json,PageCustom.class);
     }
 
 

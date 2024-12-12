@@ -17,5 +17,4 @@ public class OrderRequest {
     private Long userId;
     private Long dishId;
     private Long positionId;
-
 }
