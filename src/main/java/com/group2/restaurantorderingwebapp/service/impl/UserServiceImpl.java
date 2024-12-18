@@ -63,6 +63,7 @@ public class UserServiceImpl implements UserService {
         redisService.setHashRedis(KEY, field,redisService.convertToJson(userResponse));
         return userResponse;
         }
+        redisService.flushAll();
         return redisService.convertToObject((String) json,UserResponse.class);
     }
 

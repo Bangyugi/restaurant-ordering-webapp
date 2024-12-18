@@ -8,6 +8,9 @@ public interface RedisService {
     void set(String key, Object value) ;
     Object get(String key) ;
     void setHashRedis(String key,  String field, Object value) ;
+
+    void setHashRedis(String key, String field, Object value, Long timeToLive);
+
     Object getHash(String key, String field) ;
     List<Object> getAll(String key) ;
     void delete(String key) ;

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
 
 @Repository
 public interface RankingRepository extends JpaRepository<Ranking,Long> {
@@ -26,4 +27,6 @@ public interface RankingRepository extends JpaRepository<Ranking,Long> {
 
     @Query("from Ranking r where r.dish.dishId=:dishId and r.user.userId=:userId")
     Page<Ranking> findAllByDishIdUserId(Long dishId, Long userId, Pageable pageable);
+
+    List<Ranking> findAllByDish(Dish dish);
 }

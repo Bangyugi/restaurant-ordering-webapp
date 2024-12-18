@@ -27,7 +27,12 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void setHashRedis(String key, String field, Object value) {
+       setHashRedis(key, field, value, 3600000L) ;
+    }
+    @Override
+    public void setHashRedis(String key, String field, Object value, Long timeToLive) {
         redisTemplate.opsForHash().put(key, field, value);
+        setTTL(key, timeToLive) ;
     }
 
     @Override

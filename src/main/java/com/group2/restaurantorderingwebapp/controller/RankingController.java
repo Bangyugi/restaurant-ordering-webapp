@@ -103,4 +103,13 @@ public class RankingController {
         ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingByStar(dishId,rankingStars, pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+    @Operation(summary = "Get Rankings Analysis", description = "Get Rankings Analysis API")
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/dishes/{dishId}/ranking-analysis")
+    public ResponseEntity<ApiResponse> getRankingAnalysis(@PathVariable("dishId") Long dishId) {
+//        System.out.println("hello controller");
+        ApiResponse apiResponse = ApiResponse.success(rankingService.getRankingAnalysis(dishId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
 }
