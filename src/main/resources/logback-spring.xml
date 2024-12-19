@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <timestamp key="bySecond" datePattern="yyyy-MM-dd'T'HHmmss" timeReference="contextBirth"/>
+
+<!--    Chạy log ra console-->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{dd-MM-yyyy HH:mm:ss.SSS} %green([%thread]) %highlight(%-5level){FATAL=red, ERROR=bright-red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=cyan} %cyan(%logger{36}.%blue(%M)) - %magenta(%msg%n)
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="roleSiftingAppender" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>folderDate</key>
+            <defaultValue>${bySecond}</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="RollingFile"
+                      class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+                <file>${LOG_PATH}/${folderDate}/service-log.log</file>
+
+                <encoder
+                        class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                    <Pattern>
+                        %d{dd-MM-yyyy HH:mm:ss.SSS} %green([%thread]) %highlight(%-5level){FATAL=red, ERROR=bright-red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=cyan} %cyan(%logger{36}.%blue(%M)) - %magenta(%msg%n)
+                    </Pattern>
+                </encoder>
+
+                <rollingPolicy
+                        class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <!-- rollover daily and when the file reaches x MegaBytes -->
+                    <fileNamePattern>${LOG_PATH}/${folderDate}/archived/service-log-%d{yyyy-MM-dd}.%i.log
+                    </fileNamePattern>
+                    <timeBasedFileNamingAndTriggeringPolicy
+                            class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                        <maxFileSize>50MB</maxFileSize>
+                    </timeBasedFileNamingAndTriggeringPolicy>
+                </rollingPolicy>
+            </appender>
+        </sift>
+    </appender>
+
+    <!-- LOG everything at INFO level -->
+    <root level="info">
+        <appender-ref ref="roleSiftingAppender" />
+        <appender-ref ref="Console" />
+    </root>
+    <!-- LOG "com.example.logback.*" at TRACE level -->
+    <logger name="com.example.logback" level="trace" additivity="false">
+        <appender-ref ref="roleSiftingAppender" />
+        <appender-ref ref="Console" />
+    </logger>
+
+</configuration>

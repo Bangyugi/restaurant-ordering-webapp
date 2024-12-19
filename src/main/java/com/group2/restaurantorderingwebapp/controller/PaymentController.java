@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,12 +40,15 @@ public class PaymentController {
 
     }
 
-    @GetMapping("/vn-pay-callback")
-    @Operation(summary = "Payment Callback", description = "Payment Callback API")
-    public ResponseEntity<?> payCallBackHandle(HttpServletRequest request) {
-        System.out.println(request.getParameter("vnp_TxnRef"));
-        return new ResponseEntity<>(paymentService.payCallBackHandle(request), HttpStatus.CREATED);
-    }
+//    @GetMapping("/vn-pay-callback")
+//    @Operation(summary = "Payment Callback", description = "Payment Callback API")
+//    public String payCallBackHandle(HttpServletRequest request) {
+//        System.out.println(request.getParameter("vnp_TxnRef"));
+//        PaymentResponse paymentResponse = paymentService.payCallBackHandle(request);
+//        return "bill";
+//    }
+
+
 
     @GetMapping("/{paymentId}")
     @Operation(summary = "Get Payment", description = "Get Payment API")
@@ -53,6 +57,7 @@ public class PaymentController {
         ApiResponse apiResponse = ApiResponse.success(paymentService.getPaymentById(paymentId));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get Payment by User", description = "Get Payment by User API")

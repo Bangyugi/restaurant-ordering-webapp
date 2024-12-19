@@ -2,6 +2,7 @@ package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.RankingRequest;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
+import com.group2.restaurantorderingwebapp.dto.response.RankingAnalysisResponse;
 import com.group2.restaurantorderingwebapp.dto.response.RankingResponse;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 import com.group2.restaurantorderingwebapp.entity.Dish;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
 import java.util.List;
 
 @Service
@@ -71,7 +71,7 @@ public class RankingServiceImpl implements RankingService {
 
     @Override
     public PageCustom<RankingResponse> getAllRanking(Pageable pageable) {
-        String field = "allRanking";
+        String field = "allRanking" +pageable.toString();
         var json = redisService.getHash(KEY, field);
         if (json == null) {
 
@@ -104,15 +104,16 @@ public class RankingServiceImpl implements RankingService {
     }
 
     @Override
-    public PageCustom<RankingResponse> getRankingByDishId(Long rankingId, Pageable pageable) {
-        String field = "rankingByDishId:" + rankingId;
+    public PageCustom<RankingResponse> getRankingByDishId(Long dishId, Pageable pageable) {
+        String field = "rankingByDishId:" + dishId + pageable.toString();
         var json = redisService.getHash(KEY, field);
         if (json == null) {
 
-            Page<Ranking> ranking = rankingRepository.findAllByDishId(rankingId, pageable);
+            Page<Ranking> ranking = rankingRepository.findAllByDishId(dishId, pageable);
             PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
                     .pageNo(ranking.getNumber() + 1)
                     .pageSize(ranking.getSize())
+                    .totalPages(ranking.getTotalPages())
                     .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
                     .build();
             redisService.setHashRedis(KEY, field, redisService.convertToJson(pageCustom));
@@ -122,15 +123,69 @@ public class RankingServiceImpl implements RankingService {
     }
 
     @Override
-    public PageCustom<RankingResponse> getRankingByUserId(Long rankingId, Pageable pageable) {
-        String field = "rankingByUserId:" + rankingId;
+    public RankingAnalysisResponse getRankingAnalysis(Long dishId) {
+        String field = "rankingAnalysis:" + dishId;
+        var json = redisService.getHash(KEY, field);
+        if (json == null) {
+            Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", dishId));
+            List<Ranking> rankings = rankingRepository.findAllByDish(dish);
+
+            double rankingAvg = 0;
+            double rank5 = 0;
+            double rank4 = 0;
+            double rank3 = 0;
+            double rank2 = 0;
+            double rank1 = 0;
+            for (Ranking ranking: rankings) {
+                rankingAvg+= ranking.getRankingStars();
+                if (ranking.getRankingStars() == 5) {
+                    rank5++;
+                }
+                if (ranking.getRankingStars() == 4) {
+                    rank4++;
+                }
+                if (ranking.getRankingStars() == 3) {
+                    rank3++;
+                }
+                if (ranking.getRankingStars() == 2) {
+                    rank2++;
+                }
+                if (ranking.getRankingStars() == 1) {
+                    rank1++;
+                }
+            }
+//            System.out.println(rankings.size());
+//            System.out.println(rank5);
+//            System.out.println(rank4);
+//            System.out.println(rank3);
+//            System.out.println(rank2);
+//            System.out.println(rank1);
+
+
+            RankingAnalysisResponse response = new RankingAnalysisResponse();
+            response.setRankingAvg(rankingAvg/rankings.size());
+            response.setRank5((rank5/rankings.size())*100);
+            response.setRank4((rank4/rankings.size())*100);
+            response.setRank3((rank3/rankings.size())*100);
+            response.setRank2((rank2/rankings.size())*100);
+            response.setRank1((rank1/rankings.size())*100);
+            redisService.setHashRedis(KEY, field, redisService.convertToJson(response),60000L);
+            return response;
+        }
+        return redisService.convertToObject((String) json, RankingAnalysisResponse.class);
+    }
+
+    @Override
+    public PageCustom<RankingResponse> getRankingByUserId(Long dishId, Long userId, Pageable pageable) {
+        String field = "rankingByUserId:" + userId +pageable.toString();
         var json = redisService.getHash(KEY,field);
         if (json == null){
 
-        Page<Ranking> ranking = rankingRepository.findAllByUserId(rankingId, pageable);
+        Page<Ranking> ranking = rankingRepository.findAllByDishIdUserId(dishId,userId, pageable);
         PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
                 .pageNo(ranking.getNumber() + 1)
                 .pageSize(ranking.getSize())
+                .totalPages(ranking.getTotalPages())
                 .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
                 .build();
         redisService.setHashRedis(KEY,field,redisService.convertToJson(pageCustom));
@@ -141,15 +196,16 @@ public class RankingServiceImpl implements RankingService {
 
 
     @Override
-    public PageCustom<RankingResponse> getRankingByStar(int rankingStars, Pageable pageable) {
-        String field = "rankingByRankingStar:"+rankingStars;
+    public PageCustom<RankingResponse> getRankingByStar(Long dishId,int rankingStars, Pageable pageable) {
+        String field = "rankingByRankingStar:"+rankingStars +pageable.toString();
         var json = redisService.getHash(KEY,field);
         if (json == null){
 
-        Page<Ranking> ranking = rankingRepository.findAllByRankingStars(rankingStars, pageable);
+        Page<Ranking> ranking = rankingRepository.findAllByDishIdRankingStars(dishId,rankingStars, pageable);
         PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
                 .pageNo(ranking.getNumber() + 1)
                 .pageSize(ranking.getSize())
+                .totalPages(ranking.getTotalPages())
                 .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
                 .build();
         redisService.setHashRedis(KEY,field,redisService.convertToJson(pageCustom));

@@ -31,7 +31,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> getAllUser(
             @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
             @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy",defaultValue = "lastName",required = false) String sortBy
+            @RequestParam(value = "sortBy",defaultValue = "createAt",required = false) String sortBy
 
     ){
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );

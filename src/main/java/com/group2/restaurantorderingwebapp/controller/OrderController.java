@@ -52,9 +52,21 @@ public class OrderController {
 
     @Operation(summary = "Update Order Status", description = "Update Order Status API")
     @SecurityRequirement(name = "bearerAuth")
-    @PatchMapping("/{orderId}/update-status")
-    public ResponseEntity<ApiResponse> updateOrderStatus(@PathVariable Long orderId) {
+    @PatchMapping("/{orderId}/update-pay-status")
+    public ResponseEntity<ApiResponse> updatePayStatus(@PathVariable("orderId") Long orderId) {
+        ApiResponse apiResponse = ApiResponse.success(orderService.updatePaymentStatus(orderId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{orderId}/update-order-status")
+    public ResponseEntity<ApiResponse> updateOrderStatus(@PathVariable("orderId") Long orderId) {
         ApiResponse apiResponse = ApiResponse.success(orderService.updateOrderStatus(orderId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{orderId}/update-rating-status")
+    public ResponseEntity<ApiResponse> updateRatingStatus(@PathVariable("orderId") Long orderId) {
+        ApiResponse apiResponse = ApiResponse.success(orderService.updateRatingStatus(orderId));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 

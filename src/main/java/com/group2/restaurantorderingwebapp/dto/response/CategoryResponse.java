@@ -11,7 +11,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CategoryResponse {
     private Long categoryId;
     private String categoryName;

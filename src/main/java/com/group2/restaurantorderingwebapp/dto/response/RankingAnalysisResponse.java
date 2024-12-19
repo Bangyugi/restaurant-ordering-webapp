@@ -1,6 +1,5 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleResponse {
-    private Long roleId;
-    private String roleName;
-    private String description;
+public class RankingAnalysisResponse {
+    private double rankingAvg;
+    private double rank5;
+    private double rank4;
+    private double rank3;
+    private double rank2;
+    private double rank1;
 }

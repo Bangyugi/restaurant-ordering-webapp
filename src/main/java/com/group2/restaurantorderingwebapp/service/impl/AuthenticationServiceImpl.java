@@ -51,8 +51,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.USER_UNAUTHENTICATED);
         }
 
-        String jwtToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24);
-        String refreshToken = jwtService.generateToken(user,jwtService.getExpirationTime()*24*2);
+        String jwtToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24*3);
+        String refreshToken = jwtService.generateToken(user,jwtService.getExpirationTime()*24*7);
         UserResponse userResponse = modelMapper.map(user, UserResponse.class);
 
         return JwtAuthResponse.builder()

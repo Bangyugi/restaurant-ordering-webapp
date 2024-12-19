@@ -15,13 +15,14 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderResponse {
     private Long orderId;
     private int quantity;
     private Long timeServing;
     private Double totalPrice;
     private boolean status;
+    private boolean orderStatus;
+    private boolean ratingStatus;
     private UserResponse user;
     private DishResponse dish;
     private PositionResponse position;

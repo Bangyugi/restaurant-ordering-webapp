@@ -51,7 +51,7 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public PageCustom<DishResponse> getAllDishes(Pageable pageable) {
-        String field = "allDishes";
+        String field = "allDishes" +pageable.toString();
         var json  = redisService.getHash(KEY,field);
         if (json == null){
 
@@ -126,7 +126,7 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public PageCustom<DishResponse> searchDish(String dishName, Pageable pageable) {
-        String field = "searchDish:" + dishName;
+        String field = "searchDish:" + dishName + pageable.toString();
         var json = redisService.getHash(KEY, field);
         if (json == null) {
             Page<Dish> page = dishRepository.findAllByDishNameContainingIgnoreCase(dishName, pageable);

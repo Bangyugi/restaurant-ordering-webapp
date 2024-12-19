@@ -10,17 +10,23 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
 
 @Repository
 public interface RankingRepository extends JpaRepository<Ranking,Long> {
 
-    @Query("from Ranking r where r.user.userId=:id")
-    Page<Ranking> findAllByUserId(Long id,Pageable pageable);
 
 
     @Query("from Ranking r where r.dish.dishId=:id")
     Page<Ranking> findAllByDishId(Long id, Pageable pageable);
 
 
-    Page<Ranking> findAllByRankingStars(int rankingStars, Pageable pageable);
+    @Query("from Ranking r where r.dish.dishId=:dishId and r.rankingStars=:rankingStars")
+    Page<Ranking> findAllByDishIdRankingStars(Long dishId, int rankingStars, Pageable pageable);
+
+
+    @Query("from Ranking r where r.dish.dishId=:dishId and r.user.userId=:userId")
+    Page<Ranking> findAllByDishIdUserId(Long dishId, Long userId, Pageable pageable);
+
+    List<Ranking> findAllByDish(Dish dish);
 }

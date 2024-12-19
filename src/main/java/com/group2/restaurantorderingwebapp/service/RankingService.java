@@ -2,6 +2,7 @@ package com.group2.restaurantorderingwebapp.service;
 
 import com.group2.restaurantorderingwebapp.dto.request.RankingRequest;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
+import com.group2.restaurantorderingwebapp.dto.response.RankingAnalysisResponse;
 import com.group2.restaurantorderingwebapp.dto.response.RankingResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,11 @@ public interface RankingService {
 
     RankingResponse getRankingById(Long id);
 
-    PageCustom<RankingResponse> getRankingByDishId(Long id,Pageable pageable);
+    PageCustom<RankingResponse> getRankingByDishId(Long dishId,Pageable pageable);
 
-    PageCustom<RankingResponse> getRankingByUserId(Long id,Pageable pageable);
+    RankingAnalysisResponse getRankingAnalysis(Long dishId);
 
+    PageCustom<RankingResponse> getRankingByUserId(Long dishId, Long userId, Pageable pageable);
 
-    PageCustom<RankingResponse> getRankingByStar(int star,Pageable pageable);
+    PageCustom<RankingResponse> getRankingByStar(Long dishId, int rankingStars, Pageable pageable);
 }

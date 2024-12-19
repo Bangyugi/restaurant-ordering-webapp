@@ -5,16 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Map;
-
-
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRequest {
-    private int quantity;
-    private Long userId;
-    private Long dishId;
-    private Long positionId;
+public class FavoriteRequest {
+    private Long    dishId;
+    private Long    userId;
 }

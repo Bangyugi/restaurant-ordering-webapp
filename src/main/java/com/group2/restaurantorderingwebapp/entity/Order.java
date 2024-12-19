@@ -2,10 +2,7 @@ package com.group2.restaurantorderingwebapp.entity;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "orders")
 public class Order extends BaseEntity {
     @Id
@@ -24,8 +22,17 @@ public class Order extends BaseEntity {
     private Long timeServing;
     private Double totalPrice;
 
+    @Builder.Default
     @Column(columnDefinition = "TINYINT")
-    private boolean status;
+    private boolean status = false;
+
+    @Builder.Default
+    @Column(columnDefinition = "TINYINT")
+    private boolean orderStatus = false;
+
+    @Builder.Default
+    @Column(columnDefinition = "TINYINT")
+    private boolean ratingStatus = false;
 
     private int quantity;
 

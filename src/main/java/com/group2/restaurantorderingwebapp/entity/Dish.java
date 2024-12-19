@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -52,5 +53,9 @@ public class Dish extends BaseEntity{
 
     @OneToMany(mappedBy = "dish",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Ranking> rankings;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "dish",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<Favorite> favorites;
 
 }
