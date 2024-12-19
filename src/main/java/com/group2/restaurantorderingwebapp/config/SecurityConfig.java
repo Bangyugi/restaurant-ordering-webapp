@@ -26,47 +26,47 @@ public class SecurityConfig {
     }
 
 
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> corsFilter())
-                .authorizeHttpRequests(
-                        config->config
-                                .anyRequest().permitAll()
-//                                .requestMatchers("/api/auth/**").permitAll()
-//                                .requestMatchers("swagger-ui/index.html" +"/**"
-//                                        , "/v3/api-docs/**"
-//                                        , "/swagger-ui/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/categories/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/dishes/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/rankings/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/categories/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/positions/**").permitAll()
-//                                .requestMatchers(HttpMethod.POST,"/api/orders").permitAll()
-//                                .requestMatchers(HttpMethod.DELETE,"/api/orders/{orderId}").permitAll()
-//                                .requestMatchers(HttpMethod.PUT,"/api/orders/{orderId}").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/orders/{orderId}").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/orders/position/{positionId}").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/orders/user/{userId}").hasRole("USER")
-//                                .requestMatchers(HttpMethod.GET,"/api/order/{orderId}/update-user").permitAll()
-//                                .requestMatchers(HttpMethod.POST,"/api/rankings").hasRole("USER")
-//                                .requestMatchers(HttpMethod.GET,"/api/users/{userId}").permitAll()
-//                                .requestMatchers(HttpMethod.PUT,"/api/users/{userId}").hasRole("USER")
-//                                .requestMatchers(HttpMethod.GET,"/api/payments/{paymentId}").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/payments/user/{userId}").hasRole("USER")
-//                                .requestMatchers(HttpMethod.POST,"/api/payments/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/api/payments/bill").permitAll()
-//
-//                                .anyRequest().hasAnyRole("ADMIN","MANAGER")
+                .authorizeHttpRequests(config -> config
+                        // Public Endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "swagger-ui/index.html/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/dishes/**", "/api/rankings/**", "/api/positions/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/orders/{orderId}").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/orders/{orderId}", "/api/orders/position/{positionId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/order/{orderId}/update-user").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/{userId}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/payments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/payments/{paymentId}", "/api/payments/bill").permitAll()
+
+                        // User Role Endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/orders/user/{userId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/rankings").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/{userId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/payments/user/{userId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/favorites/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/favorites/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/favorites/**").hasRole("USER")
+
+                        // Admin and Manager Endpoints
+                        .anyRequest().hasAnyRole("ADMIN", "MANAGER")
                 )
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
 
 
