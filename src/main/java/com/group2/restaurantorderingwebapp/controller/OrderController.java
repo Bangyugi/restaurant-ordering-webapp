@@ -91,7 +91,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse> getOrderByUserId(@PathVariable("userId") Long userId,
                                                         @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
                                                         @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
-                                                        @RequestParam(value = "sortBy",defaultValue = "createAt", required = false) String sortBy) {
+                                                        @RequestParam(value = "sortBy",defaultValue = "ratingStatus", required = false) String sortBy) {
         Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
         ApiResponse apiResponse = ApiResponse.success(orderService.getOrdersByUser(userId,pageable));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);

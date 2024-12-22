@@ -70,7 +70,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
          String username = jwtService.extractUsername(refreshToken);
         User user = userRepository.findByEmailOrPhone(username).orElseThrow(() -> new ResourceNotFoundException("User", "email or phone number", username));
-        String accessToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24) ;
+        String accessToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24*7) ;
         refreshToken = jwtService.generateToken(user, jwtService.getExpirationTime()*24*2);
 
         UserResponse userResponse = modelMapper.map(user, UserResponse.class);

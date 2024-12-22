@@ -26,16 +26,19 @@ public class PaymentCallbackController {
     @GetMapping("/bill")
     @Operation(summary = "Payment Callback", description = "Payment Callback API")
     public String payCallBackHandle(HttpServletRequest request, Model model) {
+        String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
+        System.out.println(vnp_ResponseCode);
+        if (!vnp_ResponseCode.equals("00")) {
+            return "payment-fail";
+        }
         Payment payment = paymentService.payCallBackHandle(request);
-        System.out.println("hello");
         model.addAttribute("paymentId", payment.getPaymentId());
         model.addAttribute("paymentMethod", payment.getPaymentMethod());
         model.addAttribute("amount", payment.getAmount());
         model.addAttribute("user", payment.getUser());
         model.addAttribute("orders", payment.getOrder());
-
-
-        // Trả về template "bill"
         return "bill";
+
+
     }
 }

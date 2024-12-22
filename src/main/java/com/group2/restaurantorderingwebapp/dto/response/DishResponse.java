@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,4 +22,6 @@ public class DishResponse {
     private String ingredient;
     private int portion;
     private Long cookingTime;
+    private int orderAmount;
+    private Set<CategoryResponse > categories;
 }
