@@ -7,6 +7,8 @@ import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import com.group2.restaurantorderingwebapp.entity.Dish;
 import com.group2.restaurantorderingwebapp.entity.Favorite;
 import com.group2.restaurantorderingwebapp.entity.User;
+import com.group2.restaurantorderingwebapp.exception.AppException;
+import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 import com.group2.restaurantorderingwebapp.repository.DishRepository;
 import com.group2.restaurantorderingwebapp.repository.FavoriteRepository;
@@ -32,6 +34,9 @@ public class FavoriteServiceImpl  implements FavoriteService {
 
     @Override
     public FavoriteResponse createFavorite(FavoriteRequest favoriteRequest) {
+        if (favoriteRepository.existsByDishIdAndUserId(favoriteRequest.getDishId(), favoriteRequest.getUserId())) {
+            throw new AppException(ErrorCode.FAVORITE_EXISTED);
+        }
         User user = userRepository.findById(favoriteRequest.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", favoriteRequest.getUserId()));
         Dish dish = dishRepository.findById(favoriteRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", favoriteRequest.getDishId()));
         Favorite favorite = new Favorite();
@@ -66,7 +71,11 @@ public class FavoriteServiceImpl  implements FavoriteService {
                     .pageNo(page.getNumber() + 1)
                     .pageSize(page.getSize())
                     .totalPages(page.getTotalPages())
-                    .pageContent(page.getContent().stream().map(favorite -> modelMapper.map(favorite, FavoriteResponse.class)).toList())
+                    .pageContent(page.getContent().stream().map(favorite -> FavoriteResponse.builder()
+                                .favoriteId(favorite.getFavoriteId())
+                                .userId(favorite.getUser().getUserId())
+                                .dish(modelMapper.map(favorite.getDish(), DishResponse.class))
+                                .build()).toList())
                     .build();
             redisService.setHashRedis(KEY, field, redisService.convertToJson(pageCustom));
             return pageCustom;

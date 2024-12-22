@@ -46,6 +46,8 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         user.setEmailOrPhone("guest"+ LocalDateTime.now().toString());
         user.setPassword(passwordEncoder.encode("guest123"));
+        user.setFirstName("Guest");
+        user.setLastName("User");
         redisService.deleteAll(KEY);
         userRepository.save(user);
 

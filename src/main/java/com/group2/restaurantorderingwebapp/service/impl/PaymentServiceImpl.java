@@ -168,7 +168,14 @@ public class PaymentServiceImpl implements PaymentService {
         PageCustom<PaymentResponse> pageCustom = PageCustom.<PaymentResponse>builder()
                 .pageNo(page.getNumber() + 1)
                 .pageSize(page.getSize())
-                .pageContent(page.getContent().stream().map(payment -> modelMapper.map(payment, PaymentResponse.class)).toList())
+                .pageContent(page.getContent().stream().map(payment ->
+                        PaymentResponse.builder().paymentId(payment.getPaymentId())
+                                .paymentMethod(payment.getPaymentMethod())
+                                .user(modelMapper.map(payment.getUser(), UserResponse.class))
+                                .amount(payment.getAmount())
+                                .orders(payment.getOrder().stream().map(order -> modelMapper.map(order, OrderResponse.class)).collect(Collectors.toList()))
+                                .build()
+                ).toList())
                 .totalPages(page.getTotalPages())
                 .build();
         redisService.setHashRedis(KEY,field,redisService.convertToJson(pageCustom));

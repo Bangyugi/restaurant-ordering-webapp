@@ -191,7 +191,7 @@ public class OrderServiceImpl implements OrderService {
         if (json == null) {
 
             User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", userId));
-            Page<Order> orders = orderRepository.findAllByUser(user, pageable);
+            Page<Order> orders = orderRepository.findAllByUserAndStatus(user,true, pageable);
             PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
                     .pageNo(orders.getNumber() + 1)
                     .pageSize(orders.getSize())

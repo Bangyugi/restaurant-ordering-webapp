@@ -40,7 +40,8 @@ public enum ErrorCode {
     USER_EMAIL_OR_PHONE_CAN_NOT_CHANGE(400, "User email or phone can not change", HttpStatus.BAD_REQUEST),
     TOKEN_EXPIRED(400, "Token expired", HttpStatus.BAD_REQUEST),
     PAYMENT_FAIL(400, "Payment fail", HttpStatus.BAD_REQUEST),
-    PAYMENT_NOT_EXISTED(404, "Payment does not exist", HttpStatus.NOT_FOUND);
+    PAYMENT_NOT_EXISTED(404, "Payment does not exist", HttpStatus.NOT_FOUND),
+    FAVORITE_EXISTED(400, "Favorite already exists", HttpStatus.BAD_REQUEST);
 
 
     private int code;

@@ -1,6 +1,7 @@
 package com.group2.restaurantorderingwebapp.service.impl;
 
 import com.group2.restaurantorderingwebapp.dto.request.DishRequest;
+import com.group2.restaurantorderingwebapp.dto.response.CategoryResponse;
 import com.group2.restaurantorderingwebapp.dto.response.DishResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import com.group2.restaurantorderingwebapp.entity.Category;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +48,9 @@ public class DishServiceImpl implements DishService {
         dish.setCategories(categories);
         dish = dishRepository.save(dish);
         redisService.deleteAll(KEY);
-        return modelMapper.map(dish,DishResponse.class);
+        DishResponse dishResponse =  modelMapper.map(dish,DishResponse.class);
+        dishResponse.setCategories(dish.getCategories().stream().map(category -> modelMapper.map(category, CategoryResponse.class)).collect(Collectors.toSet()));
+        return dishResponse;
     }
 
     @Override
@@ -78,8 +82,9 @@ public class DishServiceImpl implements DishService {
 
         Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", dishId));
         DishResponse dishResponse = modelMapper.map(dish, DishResponse.class);
+        dishResponse.setCategories(dish.getCategories().stream().map(category -> modelMapper.map(category, CategoryResponse.class)).collect(Collectors.toSet()));
         redisService.setHashRedis(KEY,field,redisService.convertToJson(dishResponse));
-        return dishResponse;
+            return dishResponse;
         }
         return redisService.convertToObject((String) json, DishResponse.class);
 
@@ -96,8 +101,10 @@ public class DishServiceImpl implements DishService {
         }
         dish.setCategories(categories);
         dish = dishRepository.save(dish);
+        DishResponse dishResponse =  modelMapper.map(dish,DishResponse.class);
+        dishResponse.setCategories(dish.getCategories().stream().map(category -> modelMapper.map(category, CategoryResponse.class)).collect(Collectors.toSet()));
         redisService.deleteAll(KEY);
-        return modelMapper.map(dish,DishResponse.class);
+        return dishResponse;
     }
 
     @Override

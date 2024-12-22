@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RankingAnalysisResponse {
+    private int rankingCount;
     private double rankingAvg;
     private double rank5;
     private double rank4;
