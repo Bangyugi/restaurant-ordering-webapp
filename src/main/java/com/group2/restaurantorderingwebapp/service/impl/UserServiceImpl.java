@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByRoleName("ROLE_GUEST").orElseThrow(()->new ResourceNotFoundException("role","role's name","ROLE_GUEST"));
         roles.add(role);
         user.setRoles(roles);
-        user.setEmailOrPhone("guest"+ LocalDateTime.now().toString());
+        user.setPhoneNumber("guest"+ LocalDateTime.now().toString());
         user.setPassword(passwordEncoder.encode("guest123"));
         user.setFirstName("Guest");
         user.setLastName("User");
@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         var json = redisService.getHash(KEY, field);
         if (json==null){
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        User user = userRepository.findByUserIdAndStatus(userId,true).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         UserResponse userResponse =  modelMapper.map(user, UserResponse.class);
         redisService.setHashRedis(KEY, field,redisService.convertToJson(userResponse));
         return userResponse;
@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUser(Long userId, UserRequest userRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        if (!userRequest.getEmailOrPhone().equals(user.getEmailOrPhone())){
+        if (!userRequest.getEmailOrPhone().equals(user.getPhoneNumber())){
             throw new AppException(ErrorCode.USER_EMAIL_OR_PHONE_CAN_NOT_CHANGE);
         }
         modelMapper.map(userRequest,user);

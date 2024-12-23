@@ -158,12 +158,14 @@ public class RankingServiceImpl implements RankingService {
 
 
             RankingAnalysisResponse response = new RankingAnalysisResponse();
-            response.setRankingAvg(rankingAvg / rankings.size());
-            response.setRank5((rank5 / rankings.size()) * 100);
-            response.setRank4((rank4 / rankings.size()) * 100);
-            response.setRank3((rank3 / rankings.size()) * 100);
-            response.setRank2((rank2 / rankings.size()) * 100);
-            response.setRank1((rank1 / rankings.size()) * 100);
+            if (rankings.size()!=0){
+                response.setRankingAvg(rankingAvg / rankings.size());
+                response.setRank5((rank5 / rankings.size()) * 100);
+                response.setRank4((rank4 / rankings.size()) * 100);
+                response.setRank3((rank3 / rankings.size()) * 100);
+                response.setRank2((rank2 / rankings.size()) * 100);
+                response.setRank1((rank1 / rankings.size()) * 100);
+            }
             response.setRankingCount(rankings.size());
             redisService.setHashRedis(KEY, field, redisService.convertToJson(response), 60000L);
             return response;

@@ -21,7 +21,7 @@ public class OrderResponse {
     private Long timeServing;
     private Double totalPrice;
     private boolean status;
-    private boolean orderStatus;
+    private String orderStatus;
     private boolean ratingStatus;
     private UserResponse user;
     private DishResponse dish;

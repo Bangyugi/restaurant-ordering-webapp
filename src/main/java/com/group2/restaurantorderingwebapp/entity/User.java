@@ -32,16 +32,19 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
     private String lastName;
     @Column(nullable = false,unique = true)
-    private String emailOrPhone;
+    private String phoneNumber;
+    @Column(nullable = false)
+    private String email;
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" ,nullable = false)
     private String password;
     @Column(columnDefinition = "varchar(120) collate 'utf8_bin'" )
     private String address;
     private String gender;
     private LocalDate Dob;
+    private Integer otp;
     @Builder.Default
     @Column(columnDefinition = "TINYINT")
-    private boolean status = true;
+    private boolean status = false;
 
     @ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
     @JoinTable(
@@ -69,7 +72,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.emailOrPhone;
+        return this.phoneNumber != null ? this.phoneNumber : this.email;
     }
 
     @Override

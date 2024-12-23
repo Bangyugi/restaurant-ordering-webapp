@@ -27,12 +27,13 @@ public class Order extends BaseEntity {
     private boolean status = false;
 
     @Builder.Default
-    @Column(columnDefinition = "TINYINT")
-    private boolean orderStatus = false;
+    @Column(columnDefinition = "varchar(120)")
+    private String orderStatus = "considering";
 
     @Builder.Default
     @Column(columnDefinition = "TINYINT")
     private boolean ratingStatus = false;
+
 
     private int quantity;
 

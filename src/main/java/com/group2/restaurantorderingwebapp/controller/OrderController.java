@@ -58,9 +58,15 @@ public class OrderController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @PatchMapping("/{orderId}/confirm-order-status")
+    public ResponseEntity<ApiResponse> confirmOrderStatus(@PathVariable("orderId") Long orderId) {
+        ApiResponse apiResponse = ApiResponse.success(orderService.confirmOrderStatus(orderId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
     @PatchMapping("/{orderId}/update-order-status")
-    public ResponseEntity<ApiResponse> updateOrderStatus(@PathVariable("orderId") Long orderId) {
-        ApiResponse apiResponse = ApiResponse.success(orderService.updateOrderStatus(orderId));
+    public ResponseEntity<ApiResponse> updateOrderStatus(@PathVariable("orderId") Long orderId,@RequestParam("status") String status) {
+        ApiResponse apiResponse = ApiResponse.success(orderService.updateOrderStatus(orderId,status));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
