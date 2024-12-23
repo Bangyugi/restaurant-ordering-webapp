@@ -32,4 +32,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByOrderIdAndStatus(Long orderIds, boolean b);
 
     Page<Order> findAllByUserAndStatus(User user, boolean b, Pageable pageable);
+
+    @Query("select case when count(o) > 0 then true else false end from Order o where o.dish.dishId=:dishId and o.position.positionId=:positionId and o.orderStatus=:considering")
+    boolean existsByDishAndPositionAndOrderStatus(Long dishId, Long positionId, String considering);
 }

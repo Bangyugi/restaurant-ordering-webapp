@@ -23,5 +23,7 @@ public class DishResponse {
     private int portion;
     private Long cookingTime;
     private int orderAmount;
+    private int servedAmount;
+    private double rankingAvg = 0.0;
     private Set<CategoryResponse > categories;
 }

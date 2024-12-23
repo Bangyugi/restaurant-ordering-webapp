@@ -6,11 +6,13 @@ import com.group2.restaurantorderingwebapp.dto.response.DishResponse;
 import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import com.group2.restaurantorderingwebapp.entity.Category;
 import com.group2.restaurantorderingwebapp.entity.Dish;
+import com.group2.restaurantorderingwebapp.entity.Ranking;
 import com.group2.restaurantorderingwebapp.exception.AppException;
 import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 import com.group2.restaurantorderingwebapp.repository.CategoryRepository;
 import com.group2.restaurantorderingwebapp.repository.DishRepository;
+import com.group2.restaurantorderingwebapp.repository.RankingRepository;
 import com.group2.restaurantorderingwebapp.service.DishService;
 import com.group2.restaurantorderingwebapp.service.RedisService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class DishServiceImpl implements DishService {
     private final CategoryRepository categoryRepository;
     private final RedisService redisService;
     private final String KEY = "dish";
+    private final RankingRepository rankingRepository;
 
     @Override
     public DishResponse addDish(DishRequest dishRequest) {
@@ -123,7 +126,20 @@ public class DishServiceImpl implements DishService {
 
         Category category = categoryRepository.findByCategoryName(categoryName).orElseThrow(() -> new ResourceNotFoundException("Category", "name", categoryName));
         List<Dish> dishes = dishRepository.findAllByCategories(category);
-        List<DishResponse> dishResponses =  dishes.stream().map(dish -> modelMapper.map(dish, DishResponse.class)).toList();
+        List<DishResponse> dishResponses =  dishes.stream().map(dish -> {
+            DishResponse dishResponse = modelMapper.map(dish, DishResponse.class);
+            List<Ranking> ranking = rankingRepository.findAllByDish(dish);
+            double rankingAvg = 0.0;
+            for (Ranking rank : ranking) {
+                rankingAvg += (double) rank.getRankingStars();
+            }
+            if (ranking.size() != 0) {
+
+            rankingAvg = rankingAvg / ranking.size();
+            }
+            dishResponse.setRankingAvg(rankingAvg);
+            return dishResponse;
+        }).toList();
         redisService.setHashRedis(KEY, field,redisService.convertToJson(dishResponses));
         return dishResponses;
         }

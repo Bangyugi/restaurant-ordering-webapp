@@ -45,9 +45,13 @@ public class OrderServiceImpl implements OrderService {
             LocalDateTime now = LocalDateTime.now();
             user = userService.createGuestUser("guest" + now);
         }
+        Dish dish = dishRepository.findById(orderRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
 
-        if (orderRepository.existsByDishAndPositionAndStatus(orderRequest.getDishId(), orderRequest.getPositionId(), false)) {
+        if (orderRepository.existsByDishAndPositionAndOrderStatus(orderRequest.getDishId(), orderRequest.getPositionId(), "Considering")) {
             Order existingOrder = orderRepository.findByDishAndPositionAndStatus(orderRequest.getDishId(), orderRequest.getPositionId(), false).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
+            if (dish.getServedAmount()< orderRequest.getQuantity() + existingOrder.getQuantity()){
+                throw  new AppException(ErrorCode.ORDER_REACHED_MAX_QUANTITY);
+            }
             existingOrder.setQuantity(existingOrder.getQuantity() + orderRequest.getQuantity());
             existingOrder.setTotalPrice(existingOrder.getTotalPrice() + orderRequest.getQuantity() * existingOrder.getDish().getPrice());
             existingOrder.setTimeServing(existingOrder.getTimeServing() + orderRequest.getQuantity() * existingOrder.getDish().getCookingTime());
@@ -58,13 +62,16 @@ public class OrderServiceImpl implements OrderService {
             return orderResponse;
         }
 
+
+
+        if (dish.getServedAmount()< orderRequest.getQuantity()){
+            throw  new AppException(ErrorCode.QUANTITY_NOT_ENOUGH);
+        }
         Position position = positonRepository.findById(orderRequest.getPositionId()).orElseThrow(() -> new ResourceNotFoundException("Position", "id", orderRequest.getPositionId()));
-        Dish dish = dishRepository.findById(orderRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
 
         Order order = new Order();
         order.setUser(user);
         order.setPosition(position);
-        order.setStatus(false);
         order.setDish(dish);
         order.setQuantity(orderRequest.getQuantity());
         Long timeServing = dish.getCookingTime() * orderRequest.getQuantity();
@@ -90,13 +97,33 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public String updateOrderStatus(Long id){
+    public String confirmOrderStatus(Long id){
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
-        order.setOrderStatus(true);
+        Dish dish = dishRepository.findById(order.getDish().getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", order.getDish().getDishId()));
+        if (order.getQuantity() > dish.getServedAmount()){
+            throw  new AppException(ErrorCode.SOMEONE_FASTER);
+        }
+        dish.setServedAmount(dish.getServedAmount() - order.getQuantity());
+        if (dish.getServedAmount() == 0){
+            dish.setStatus("Out of stock");
+        }
+        redisService.deleteAll("dish");
+        dishRepository.save(dish);
+        order.setOrderStatus("Serving");
         orderRepository.save(order);
         redisService.deleteAll(KEY);
         return "Update order status successfully";
     }
+
+    @Override
+    public String updateOrderStatus(Long id, String status) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        order.setOrderStatus(status);
+        orderRepository.save(order);
+        redisService.deleteAll(KEY);
+        return "Update order status to " + status + " successfully";
+    }
+
 
     @Override
     public String updateRatingStatus(Long id){

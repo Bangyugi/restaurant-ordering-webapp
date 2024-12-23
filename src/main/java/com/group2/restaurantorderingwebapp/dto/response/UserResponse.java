@@ -1,6 +1,5 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.group2.restaurantorderingwebapp.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +19,8 @@ public class UserResponse {
     private String lastName;
     private String imageUrl;
     private String address;
-    private String emailOrPhone;
+    private String phoneNumber;
+    private String email;
     private String gender;
     private LocalDate Dob;
     private boolean status;

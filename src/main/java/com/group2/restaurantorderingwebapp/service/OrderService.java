@@ -13,7 +13,9 @@ public interface OrderService  {
 
     String updatePaymentStatus(Long id);
 
-    String updateOrderStatus(Long id);
+    String confirmOrderStatus(Long id);
+
+    String updateOrderStatus(Long id, String status);
 
     String updateRatingStatus(Long id);
 
