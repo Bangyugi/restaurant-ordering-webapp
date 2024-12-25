@@ -27,7 +27,6 @@ public class DishRequest {
     private String description;
     @Min(value = 0, message = "Price must be greater than or equal to 0")
     private Double price;
-    private String status;
     @NotNull(message = "Ingredient is required")
     @NotEmpty(message = "Ingredient is required")
     private String ingredient;
