@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        redisService.deleteAll(KEY);
+        redisService.flushAll();
         userRepository.delete(user);
         return "User with id: " +userId+ " was deleted successfully";
     }

@@ -127,7 +127,7 @@ public class DishServiceImpl implements DishService {
     public String deleteDish(Long dishId) {
         Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", dishId));
         dishRepository.delete(dish);
-        redisService.deleteAll(KEY);
+        redisService.flushAll();
         return "Dish with id: " +dishId+ " was deleted successfully";
     }
 
