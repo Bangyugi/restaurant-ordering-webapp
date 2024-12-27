@@ -49,6 +49,12 @@ public class DishServiceImpl implements DishService {
             categories.add(category);
         }
         dish.setCategories(categories);
+        if (dish.getServedAmount() == 0) {
+            dish.setStatus("Out of stock");
+        }
+        else {
+            dish.setStatus("Available");
+        }
         dish = dishRepository.save(dish);
         redisService.deleteAll(KEY);
         DishResponse dishResponse =  modelMapper.map(dish,DishResponse.class);
@@ -102,7 +108,14 @@ public class DishServiceImpl implements DishService {
             Category category = categoryRepository.findByCategoryName(categoryName).orElseThrow(() -> new ResourceNotFoundException("Category", "name", categoryName));
             categories.add(category);
         }
+
         dish.setCategories(categories);
+        if (dish.getServedAmount() == 0) {
+            dish.setStatus("Out of stock");
+        }
+        else {
+            dish.setStatus("Available");
+        }
         dish = dishRepository.save(dish);
         DishResponse dishResponse =  modelMapper.map(dish,DishResponse.class);
         dishResponse.setCategories(dish.getCategories().stream().map(category -> modelMapper.map(category, CategoryResponse.class)).collect(Collectors.toSet()));
@@ -114,7 +127,7 @@ public class DishServiceImpl implements DishService {
     public String deleteDish(Long dishId) {
         Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", dishId));
         dishRepository.delete(dish);
-        redisService.deleteAll(KEY);
+        redisService.flushAll();
         return "Dish with id: " +dishId+ " was deleted successfully";
     }
 

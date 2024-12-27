@@ -76,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
     public String deleteCategory(Long categoryId){
         Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category","id",categoryId));
         categoryRepository.delete(category);
-        redisService.deleteAll(KEY);
+        redisService.flushAll();
         return "Category with id: " +categoryId+ " was deleted successfully";
     }
 

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import com.group2.restaurantorderingwebapp.dto.request.OrderRequest;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
@@ -34,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserService userService;
 
     private final static String KEY = "order";
-
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
@@ -58,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(existingOrder);
             OrderResponse orderResponse = modelMapper.map(existingOrder, OrderResponse.class);
             orderResponse.setUser(modelMapper.map(user, UserResponse.class));
+            messagingTemplate.convertAndSend("/topic/orders", orderResponse);
             redisService.deleteAll(KEY);
             return orderResponse;
         }
@@ -82,6 +84,7 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
 
         OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
+        messagingTemplate.convertAndSend("/topic/orders", orderResponse);
         redisService.deleteAll(KEY);
         return orderResponse;
     }
@@ -205,6 +208,7 @@ public class OrderServiceImpl implements OrderService {
                     .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
                     .build();
             redisService.setHashRedis(KEY, field, redisService.convertToJson(pageCustom));
+            messagingTemplate.convertAndSend("/topic/orders", pageCustom);
             return pageCustom;
         }
         return redisService.convertToObject((String) json, PageCustom.class);

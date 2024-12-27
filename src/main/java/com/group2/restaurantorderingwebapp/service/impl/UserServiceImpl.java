@@ -92,7 +92,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUser(Long userId, UserRequest userRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        if (!userRequest.getEmailOrPhone().equals(user.getPhoneNumber())){
+        if (!userRequest.getPhoneNumber().equals(user.getPhoneNumber())){
+            throw new AppException(ErrorCode.USER_EMAIL_OR_PHONE_CAN_NOT_CHANGE);
+        }
+        if (!userRequest.getEmail().equals(user.getEmail())){
             throw new AppException(ErrorCode.USER_EMAIL_OR_PHONE_CAN_NOT_CHANGE);
         }
         modelMapper.map(userRequest,user);
@@ -111,7 +114,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        redisService.deleteAll(KEY);
+        redisService.flushAll();
         userRepository.delete(user);
         return "User with id: " +userId+ " was deleted successfully";
     }
