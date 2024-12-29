@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,15 @@ public class PositionServiceImpl implements PositionService {
         Position updatedPosition = positionRepository.save(position);
         return modelMapper.map(updatedPosition, PositionResponse.class);
     }
+
+    @Override
+    public List<PositionResponse> getAvailablePositions(LocalDateTime orderTime) {
+     return positionRepository.getAvailablePositions(orderTime).stream()
+             .map(position -> modelMapper.map(position, PositionResponse.class)
+             )
+             .collect(Collectors.toList());
+ }
+
 
     @Override
     public String deletePosition(Long positionId) {

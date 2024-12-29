@@ -3,6 +3,7 @@ package com.group2.restaurantorderingwebapp.service;
 import com.group2.restaurantorderingwebapp.dto.request.PositionRequest;
 import com.group2.restaurantorderingwebapp.dto.response.PositionResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PositionService {
@@ -16,6 +17,6 @@ public interface PositionService {
 
     PositionResponse updatePosition(Long id, PositionRequest positionRequest);
 
-
+    List<PositionResponse> getAvailablePositions( LocalDateTime orderTime);
     String deletePosition(Long id);
 }

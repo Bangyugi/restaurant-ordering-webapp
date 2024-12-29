@@ -22,18 +22,13 @@ public class Cart extends BaseEntity{
 
     private int amount;
     @Column(columnDefinition = "TINYINT")
-    private boolean status;
+
+    private int status;
 
     @OneToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
-    @JoinTable(
-            name = "cart_item",
-            joinColumns = @JoinColumn(name = "cart_id"),
-            inverseJoinColumns = @JoinColumn(name = "dish_id")
-    )
-    private Set<Dish> dish;
+
 
 }

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -36,6 +37,16 @@ public class PositionController {
     public ResponseEntity<ApiResponse> getById(@PathVariable("positionId") Long positionId) {
         PositionResponse positionResponse = positionService.getPosition(positionId);
         ApiResponse apiResponse = ApiResponse.success(positionResponse);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get available Position", description = "Get available Position API")
+    @GetMapping("/available-position")
+    public ResponseEntity<ApiResponse> getAvailablePosition(
+            @PathVariable("orderTime") LocalDateTime orderTime
+    ) {
+        List<PositionResponse> positionResponses= positionService.getAvailablePositions( orderTime);
+        ApiResponse apiResponse = ApiResponse.success(positionResponses);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
