@@ -59,6 +59,11 @@ public class User extends BaseEntity implements UserDetails {
     private Set<Order> orders;
 
     @JsonIgnore
+    @OneToMany (mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<Reservation> reservations;
+
+
+    @JsonIgnore
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Ranking> rankings;
 

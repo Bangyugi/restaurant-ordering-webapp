@@ -40,14 +40,6 @@ public class Dish extends BaseEntity{
     private int servedAmount = 0;
     private double rankingAvg;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
-    @JoinTable(
-            name = "cart_item",
-            joinColumns = @JoinColumn(name = "dish_id"),
-            inverseJoinColumns = @JoinColumn(name = "cart_id")
-    )
-    private Set<Cart> carts;
-
     @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
     @JoinTable(
             name = "dish_category",

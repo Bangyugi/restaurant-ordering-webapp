@@ -31,4 +31,6 @@ public interface OrderService  {
     PageCustom<OrderResponse> getOrdersByPosition(Long positionId, Pageable pageable);
 
     PageCustom<OrderResponse> getOrdersByUser(Long userId, Pageable pageable);
+
+    PageCustom<OrderResponse> getOrdersByCart(Long positionId, Pageable pageable);
 }

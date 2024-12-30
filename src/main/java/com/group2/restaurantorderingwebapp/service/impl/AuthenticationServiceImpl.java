@@ -5,11 +5,13 @@ import com.group2.restaurantorderingwebapp.dto.request.LoginRequest;
 import com.group2.restaurantorderingwebapp.dto.request.RegisterRequest;
 import com.group2.restaurantorderingwebapp.dto.response.JwtAuthResponse;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
+import com.group2.restaurantorderingwebapp.entity.Cart;
 import com.group2.restaurantorderingwebapp.entity.Role;
 import com.group2.restaurantorderingwebapp.entity.User;
 import com.group2.restaurantorderingwebapp.exception.AppException;
 import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
+import com.group2.restaurantorderingwebapp.repository.CartRepository;
 import com.group2.restaurantorderingwebapp.repository.RoleRepository;
 import com.group2.restaurantorderingwebapp.repository.UserRepository;
 import com.group2.restaurantorderingwebapp.service.AuthenticationService;
@@ -40,6 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final SendEmailService sendEmailService;
+    private final CartRepository cartRepository;
 
 
     @Override
@@ -124,6 +127,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         user = userRepository.save(user);
         sendEmailService.sendEmail(user.getEmail(), user.getOtp());
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepository.save(cart);
         return modelMapper.map(user,UserResponse.class);
     }
 

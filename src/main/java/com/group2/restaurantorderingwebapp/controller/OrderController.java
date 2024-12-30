@@ -118,6 +118,17 @@ public class OrderController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-
+    @Operation(summary = "Get Order By Cart Id", description = "Get Order By Cart Id API")
+    @GetMapping("/cart/{cartId}")
+    public ResponseEntity<ApiResponse> getOrderByCartId(@PathVariable("cartId") Long cartId,
+                                                            @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
+                                                            @RequestParam(value = "pageSize",defaultValue = "10", required = false) int pageSize,
+                                                            @RequestParam(value = "sortBy",defaultValue = "createAt", required = false) String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo -1,pageSize, Sort.by(sortBy).ascending() );
+        var response = orderService.getOrdersByCart(cartId,pageable);
+        System.out.println("response: " + response.getPageContent());
+        ApiResponse apiResponse = ApiResponse.success(response);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
 
 }

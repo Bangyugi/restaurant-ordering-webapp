@@ -37,6 +37,7 @@ public enum ErrorCode {
 
     ORDER_NOT_EXISTED(2001, "Order does not exist", HttpStatus.NOT_FOUND),
     ORDER_REACHED_MAX_QUANTITY(7002, "Order reached max quantity", HttpStatus.BAD_REQUEST),
+    POSITION_OR_CART_NOT_FOUND(2002, "Position or Cart not found", HttpStatus.NOT_FOUND),
 
     CATEGORY_NOT_EXISTED(3001, "Category does not exist", HttpStatus.NOT_FOUND),
     CATEGORY_EXISTED(3002, "Category already exists", HttpStatus.BAD_REQUEST),
@@ -52,10 +53,8 @@ public enum ErrorCode {
     FAVORITE_EXISTED(6001, "Favorite already exists", HttpStatus.BAD_REQUEST),
 
     QUANTITY_NOT_ENOUGH(7001, "Quantity not enough", HttpStatus.BAD_REQUEST),
-    SOMEONE_FASTER(7003, "Oops, someone is faster", HttpStatus.BAD_REQUEST),
-
+    SOMEONE_FASTER(7003, "Oops, someone is faster", HttpStatus.BAD_REQUEST)
     ;
-
 
 
     private int code;

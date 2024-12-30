@@ -34,7 +34,6 @@ public class Order extends BaseEntity {
     @Column(columnDefinition = "TINYINT")
     private boolean ratingStatus = false;
 
-
     private int quantity;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
@@ -49,5 +48,11 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "position_id")
     private Position position;
 
+    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
+    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
+    @JoinColumn(name = "reservation_id")
+    private Reservation reservation;
 }

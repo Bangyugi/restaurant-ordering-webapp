@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.repository;
 
+import com.group2.restaurantorderingwebapp.entity.Cart;
 import com.group2.restaurantorderingwebapp.entity.Order;
 import com.group2.restaurantorderingwebapp.entity.Position;
 import com.group2.restaurantorderingwebapp.entity.User;
@@ -35,4 +36,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("select case when count(o) > 0 then true else false end from Order o where o.dish.dishId=:dishId and o.position.positionId=:positionId and o.orderStatus=:considering")
     boolean existsByDishAndPositionAndOrderStatus(Long dishId, Long positionId, String considering);
+
+    @Query("from Order o where o.dish.dishId=:dishId and o.cart.cartId =:cartId and o.status=:b")
+    Optional<Order> findByDishAndCartAndStatus(Long dishId, Long cartId, boolean b);
+
+    Page<Order> findAllByCartAndStatus(Cart cart, boolean b, Pageable pageable);
 }
