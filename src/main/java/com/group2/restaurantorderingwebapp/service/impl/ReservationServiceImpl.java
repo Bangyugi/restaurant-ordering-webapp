@@ -25,94 +25,76 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
-   private final ReservationRepository reservationRepository;
-   private final ModelMapper modelMapper;
-   private final UserRepository userRepository;
-   private final UserService userService;
-   private final PositonRepository positonRepository;
-   private final OrderRepository orderRepository;
+    private final ReservationRepository reservationRepository;
+    private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
+    private final UserService userService;
+    private final PositonRepository positonRepository;
+    private final OrderRepository orderRepository;
 
-   @Override
-   public ReservationResponse create(ReservationRequest reservationRequest) {
-      User user;
-      if (reservationRequest.getUserId() != null) {
-         user = userRepository.findById(reservationRequest.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", reservationRequest.getUserId()));
-      } else {
-         LocalDateTime now = LocalDateTime.now();
-         user = userService.createGuestUser("guest" + now);
+    @Override
+    public ReservationResponse create(ReservationRequest reservationRequest) {
+        User user;
+        if (reservationRequest.getUserId() != null) {
+            user = userRepository.findById(reservationRequest.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", reservationRequest.getUserId()));
+        } else {
+            LocalDateTime now = LocalDateTime.now();
+            user = userService.createGuestUser("guest" + now);
+        }
+
+      if(reservationRepository.existsReservationWithSameTimeSlot(reservationRequest.getOrderTime())) {
+            throw new AppException(ErrorCode.RESERVATION_ALREADY_EXISTS);
       }
-
-      int reservatedTable = reservationRepository.reservatedTables(reservationRequest.getOrderTime());
-      if((reservatedTable + reservationRequest.getQuantityTables())>15){
+        if (reservationRequest.getQuantityTables() > 15) {
             throw new AppException(ErrorCode.RESERVATION_NOT_ENOUGH_TABLES);
-      }
-         Reservation reservation = modelMapper.map(reservationRequest, Reservation.class);
-         Set<Position> positions = new HashSet<>();
-         for(Long positionId : reservationRequest.getPositionIds()) {
-         Position position = positonRepository.findById(positionId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
-         positions.add(position);
-         }
-         Set<Order> orders = new HashSet<>();
-         for(Long orderId : reservationRequest.getOrderIds()) {
+        }
+
+        Reservation reservation = modelMapper.map(reservationRequest, Reservation.class);
+        Set<Order> orders = new HashSet<>();
+        for (Long orderId : reservationRequest.getOrderIds()) {
             Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
             orders.add(order);
-         }
-         reservation.setQuantityTables(reservationRequest.getQuantityTables());
-         reservation.setUser(user);
-         reservation.setPositions(positions);
-         reservation.setOrders(orders);
-         reservationRepository.save(reservation);
-      return modelMapper.map(reservation, ReservationResponse.class);
-   }
+        }
+        reservation.setQuantityTables(reservationRequest.getQuantityTables());
+        reservation.setUser(user);
+        reservation.setOrders(orders);
+        reservationRepository.save(reservation);
+        return modelMapper.map(reservation, ReservationResponse.class);
 
-   @Override
-   public String deleteById(Long reservationId) {
-      Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
-      reservationRepository.delete(reservation);
-      return "Reservation successfully deleted";
-   }
+    }
 
-   @Override
-   public PageCustom<ReservationResponse> getReservationByUser(Long userId, Pageable pageable) {
+    @Override
+    public String deleteById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
+        reservationRepository.delete(reservation);
+        return "Reservation successfully deleted";
+    }
 
-         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("UserId", "id", userId));
-         Page<Reservation> reservations = reservationRepository.findAllByUser(user, pageable);
-         PageCustom<ReservationResponse> pageCustom = PageCustom.<ReservationResponse>builder()
-                 .pageNo(reservations.getNumber() + 1)
-                 .pageSize(reservations.getSize())
-                 .totalPages(reservations.getTotalPages())
-                 .pageContent(reservations.getContent().stream().map(reservation -> modelMapper.map(reservation, ReservationResponse.class)).toList())
-                 .build();
-         return pageCustom;
-   }
-   // User confirm make a reservation
-   @Override
-   public String confirmReservationStatus(Long id){
-      Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", id));
-      reservation.setStatus(ReservationStatus.PENDING_RESERVATION.getText(1));
-      reservationRepository.save(reservation);
-      return "Make a reservation successfully";
-   }
+    @Override
+    public PageCustom<ReservationResponse> getReservationByUser(Long userId, Pageable pageable) {
 
-   //Manger update status, neu truyen vao status 2 la dat  don thanh cong, 3 la da thanh toan Kien nha
-   @Override
-   public  String updateStatus(Long id, int status){
-      Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", id));
-      reservation.setStatus(ReservationStatus.getText(status));
-      reservationRepository.save(reservation);
-      return "Approve a reservation successfully";
-   }
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("UserId", "id", userId));
+        Page<Reservation> reservations = reservationRepository.findAllByUser(user, pageable);
+        PageCustom<ReservationResponse> pageCustom = PageCustom.<ReservationResponse>builder()
+                .pageNo(reservations.getNumber() + 1)
+                .pageSize(reservations.getSize())
+                .totalPages(reservations.getTotalPages())
+                .pageContent(reservations.getContent().stream().map(reservation -> modelMapper.map(reservation, ReservationResponse.class)).toList())
+                .build();
+        return pageCustom;
 
-   @Override
-   public  String cancelReservation(Long id, LocalDateTime orderTime){
-      Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", id));
-      LocalDateTime orderTime1 = reservation.getOrderTime().plusHours(5);
-      if(orderTime1.isBefore(orderTime)){
-         reservationRepository.delete(reservation);
-         return "Cancel successfully!";
-      }
-      else return "Overtime, cannot cancel reservation!";
-   }
+    }
+
+    // User confirm make a reservation
+    @Override
+    public String confirmReservationStatus(Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", id));
+        reservation.setStatus(ReservationStatus.RESERVATION_CONFIRMED.getText(2));
+        reservationRepository.save(reservation);
+        return "Make a reservation successfully";
+
+    }
+
 
 
 

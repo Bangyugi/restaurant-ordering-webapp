@@ -28,14 +28,14 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @Operation(summary = "Create Reservation", description = "Create Reservation API")
-    @PostMapping("/create-reservation")
+    @PostMapping()
     public ResponseEntity<ApiResponse> createReservation(@RequestBody ReservationRequest reservationRequest) {
         ApiResponse apiResponse = ApiResponse.success(reservationService.create(reservationRequest));
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get Reservation by userId", description = "View history")
-    @SecurityRequirement(name = "bearerAuth")
+//    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse> getOrderByCartId(@PathVariable("userId") Long userId,
                                                         @RequestParam(value = "pageNo", defaultValue = "1", required = false) int pageNo,
@@ -49,34 +49,20 @@ public class ReservationController {
     }
 
     @PatchMapping("/{reservationId}/confirm-reservation-status")
-    @SecurityRequirement(name = "bearerAuth")
+//    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApiResponse> confirmReservationStatus(@PathVariable("reservationId") Long reservationId) {
         ApiResponse apiResponse = ApiResponse.success(reservationService.confirmReservationStatus(reservationId));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @PatchMapping("/{reservationId}/update-status")
-    @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<ApiResponse> updateReservationStatus(@PathVariable("reservationId") Long reservationId,@RequestParam("status") int status) {
-        ApiResponse apiResponse = ApiResponse.success(reservationService.updateStatus(reservationId, status));
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-    }
 
     @Operation(summary = "Delete reservation", description = "Delete Reservation API")
-    @SecurityRequirement(name = "bearerAuth")
+//    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<ApiResponse> deleteReservation(@PathVariable("reservationId") Long reservationId) {
         ApiResponse apiResponse = ApiResponse.success(reservationService.deleteById(reservationId));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @Operation(summary = "Cancel reservation", description = "Cancel Reservation API")
-    @SecurityRequirement(name = "bearerAuth")
-    @DeleteMapping("/{reservationId}")
-    public ResponseEntity<ApiResponse> cancelReservation(@PathVariable("reservationId") Long reservationId
-            , @RequestParam("orderTime")LocalDateTime orderTime) {
-        ApiResponse apiResponse = ApiResponse.success(reservationService.cancelReservation(reservationId, orderTime));
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-    }
 
 }

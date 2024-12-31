@@ -22,8 +22,5 @@ public interface ReservationService {
     // User confirm make a reservation
     String confirmReservationStatus(Long id);
 
-    //Manger update status, neu truyen vao status 2 la dat  don thanh cong, 3 la da thanh toan Kien nha
-    String updateStatus(Long id, int status);
 
-    String cancelReservation(Long id, LocalDateTime orderTime);
 }

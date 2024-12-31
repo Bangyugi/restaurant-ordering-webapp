@@ -26,4 +26,5 @@ public class OrderResponse {
     private UserResponse user;
     private DishResponse dish;
     private PositionResponse position;
+    private CartResponse cart;
 }

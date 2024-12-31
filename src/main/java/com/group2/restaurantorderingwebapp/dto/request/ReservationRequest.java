@@ -12,26 +12,13 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class ReservationRequest {
-    @Builder.Default
-    private String status="Pending";
-
     private LocalDateTime orderTime;
-
     private boolean type;
-
     private String address;
-
     private String fullname;
-
     private String phone;
-
     private String note;
-
     private Long userId;
-
     private int quantityTables;
-
-    private Set<Long> positionIds;
-
     private Set<Long> orderIds;
 }

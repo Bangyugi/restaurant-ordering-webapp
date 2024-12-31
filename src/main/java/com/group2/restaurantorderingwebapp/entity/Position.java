@@ -23,12 +23,5 @@ public class Position {
     @OneToMany(mappedBy = "position", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Order> orders;
 
-    @ManyToMany( fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
-    @JoinTable(
-            name = "reservation_pos",
-            joinColumns = @JoinColumn(name = "position_id"),
-            inverseJoinColumns = @JoinColumn(name = "reservation_id")
-    )
-    private Set<Reservation> reservations;
 
 }
