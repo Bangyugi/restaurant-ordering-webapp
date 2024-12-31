@@ -62,10 +62,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/favorites/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/favorites/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/favorites/**").hasRole("USER")
-
+                        .requestMatchers(HttpMethod.DELETE,"api/reservations/{reservationId}").hasRole("USER")
                         // Admin and Manager Endpoints
                         .requestMatchers(HttpMethod.PATCH, "api/reservations/{reservationId}/update-status").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE,"api/reservations/{reservationId}").hasRole("MANAGER")
                         .anyRequest().hasAnyRole("ADMIN", "MANAGER")
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -32,6 +32,8 @@ public class Reservation extends BaseEntity {
 
     private String note;
 
+    private int quantityTables;
+
     private Double totalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})

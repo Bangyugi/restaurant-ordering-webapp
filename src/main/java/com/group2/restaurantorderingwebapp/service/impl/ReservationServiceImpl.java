@@ -5,11 +5,14 @@ import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import com.group2.restaurantorderingwebapp.dto.response.ReservationResponse;
 import com.group2.restaurantorderingwebapp.entity.*;
 import com.group2.restaurantorderingwebapp.enumeration.ReservationStatus;
+import com.group2.restaurantorderingwebapp.exception.AppException;
+import com.group2.restaurantorderingwebapp.exception.ErrorCode;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 import com.group2.restaurantorderingwebapp.repository.*;
 import com.group2.restaurantorderingwebapp.service.ReservationService;
 import com.group2.restaurantorderingwebapp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,21 +41,27 @@ public class ReservationServiceImpl implements ReservationService {
          LocalDateTime now = LocalDateTime.now();
          user = userService.createGuestUser("guest" + now);
       }
-      Set<Position> positions = new HashSet<>();
-      for(Long positionId : reservationRequest.getPositionIds()) {
+
+      int reservatedTable = reservationRepository.reservatedTables(reservationRequest.getOrderTime());
+      if((reservatedTable + reservationRequest.getQuantityTables())>15){
+            throw new AppException(ErrorCode.RESERVATION_NOT_ENOUGH_TABLES);
+      }
+         Reservation reservation = modelMapper.map(reservationRequest, Reservation.class);
+         Set<Position> positions = new HashSet<>();
+         for(Long positionId : reservationRequest.getPositionIds()) {
          Position position = positonRepository.findById(positionId).orElseThrow(() -> new ResourceNotFoundException("Position", "id", positionId));
          positions.add(position);
-      }
-      Set<Order> orders = new HashSet<>();
-      for(Long orderId : reservationRequest.getOrderIds()) {
-         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
-         orders.add(order);
-      }
-      Reservation reservation = modelMapper.map(reservationRequest, Reservation.class);
-      reservation.setUser(user);
-      reservation.setPositions(positions);
-      reservation.setOrders(orders);
-      reservationRepository.save(reservation);
+         }
+         Set<Order> orders = new HashSet<>();
+         for(Long orderId : reservationRequest.getOrderIds()) {
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+            orders.add(order);
+         }
+         reservation.setQuantityTables(reservationRequest.getQuantityTables());
+         reservation.setUser(user);
+         reservation.setPositions(positions);
+         reservation.setOrders(orders);
+         reservationRepository.save(reservation);
       return modelMapper.map(reservation, ReservationResponse.class);
    }
 
@@ -93,6 +102,18 @@ public class ReservationServiceImpl implements ReservationService {
       reservationRepository.save(reservation);
       return "Approve a reservation successfully";
    }
+
+   @Override
+   public  String cancelReservation(Long id, LocalDateTime orderTime){
+      Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", id));
+      LocalDateTime orderTime1 = reservation.getOrderTime().plusHours(5);
+      if(orderTime1.isBefore(orderTime)){
+         reservationRepository.delete(reservation);
+         return "Cancel successfully!";
+      }
+      else return "Overtime, cannot cancel reservation!";
+   }
+
 
 
 

@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
@@ -65,6 +67,15 @@ public class ReservationController {
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<ApiResponse> deleteReservation(@PathVariable("reservationId") Long reservationId) {
         ApiResponse apiResponse = ApiResponse.success(reservationService.deleteById(reservationId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Cancel reservation", description = "Cancel Reservation API")
+    @SecurityRequirement(name = "bearerAuth")
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<ApiResponse> cancelReservation(@PathVariable("reservationId") Long reservationId
+            , @RequestParam("orderTime")LocalDateTime orderTime) {
+        ApiResponse apiResponse = ApiResponse.success(reservationService.cancelReservation(reservationId, orderTime));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 

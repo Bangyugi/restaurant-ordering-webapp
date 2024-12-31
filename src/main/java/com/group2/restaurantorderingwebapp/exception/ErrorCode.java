@@ -36,6 +36,7 @@ public enum ErrorCode {
 
 
     ORDER_NOT_EXISTED(2001, "Order does not exist", HttpStatus.NOT_FOUND),
+    RESERVATION_NOT_ENOUGH_TABLES(2003, "Not enough available tables ", HttpStatus.NOT_FOUND),
     ORDER_REACHED_MAX_QUANTITY(7002, "Order reached max quantity", HttpStatus.BAD_REQUEST),
     POSITION_OR_CART_NOT_FOUND(2002, "Position or Cart not found", HttpStatus.NOT_FOUND),
 

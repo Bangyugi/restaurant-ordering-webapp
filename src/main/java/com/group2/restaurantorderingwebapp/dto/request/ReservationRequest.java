@@ -29,6 +29,8 @@ public class ReservationRequest {
 
     private Long userId;
 
+    private int quantityTables;
+
     private Set<Long> positionIds;
 
     private Set<Long> orderIds;

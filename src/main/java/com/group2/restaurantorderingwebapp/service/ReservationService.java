@@ -8,6 +8,7 @@ import com.group2.restaurantorderingwebapp.dto.response.PageCustom;
 import com.group2.restaurantorderingwebapp.dto.response.ReservationResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReservationService {
@@ -23,4 +24,6 @@ public interface ReservationService {
 
     //Manger update status, neu truyen vao status 2 la dat  don thanh cong, 3 la da thanh toan Kien nha
     String updateStatus(Long id, int status);
+
+    String cancelReservation(Long id, LocalDateTime orderTime);
 }
