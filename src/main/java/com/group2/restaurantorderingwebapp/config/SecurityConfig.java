@@ -50,7 +50,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/payments/{paymentId}", "/api/payments/bill").permitAll()
                         // User Role Endpoints
                         .requestMatchers(HttpMethod.POST, "api/reservations/create-reservation").hasRole("USER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/{reservationId}/confirm-reservation-status").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/reservations/{userId}").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/orders/user/{userId}").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/rankings").hasRole("USER")

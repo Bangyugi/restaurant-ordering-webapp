@@ -18,6 +18,7 @@ import com.group2.restaurantorderingwebapp.dto.request.OrderRequest;
 import com.group2.restaurantorderingwebapp.exception.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,82 +35,92 @@ public class OrderServiceImpl implements OrderService {
     private final static String KEY = "order";
     private final SimpMessagingTemplate messagingTemplate;
     private final CartRepository cartRepository;
-
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
-        User user;
+        User user = getOrCreateUser(orderRequest);
+        Dish dish = dishRepository.findById(orderRequest.getDishId())
+                .orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
+
+        Order existingOrder = handleExistingOrder(orderRequest, dish);
+        if (existingOrder != null) {
+            return prepareOrderResponse(existingOrder, user);
+        }
+
+        if (dish.getServedAmount() < orderRequest.getQuantity()) {
+            throw new AppException(ErrorCode.QUANTITY_NOT_ENOUGH);
+        }
+
+        Order order = createNewOrder(orderRequest, user, dish);
+        return prepareOrderResponse(order, user);
+    }
+
+    private User getOrCreateUser(OrderRequest orderRequest) {
         if (orderRequest.getUserId() != null) {
-            user = userRepository.findById(orderRequest.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", orderRequest.getUserId()));
+            return userRepository.findById(orderRequest.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "id", orderRequest.getUserId()));
+        }
+        LocalDateTime now = LocalDateTime.now();
+        return userService.createGuestUser("guest" + now);
+    }
+
+    private Order handleExistingOrder(OrderRequest orderRequest, Dish dish) {
+        Optional<Order> optionalOrder;
+        if (orderRequest.getCartId() == null && orderRequest.getPositionId() != null) {
+            optionalOrder = orderRepository.findByDishAndPositionAndStatus(orderRequest.getDishId(),
+                    orderRequest.getPositionId(), false);
+        } else if (orderRequest.getCartId() != null && orderRequest.getPositionId() == null) {
+            optionalOrder = orderRepository.findByDishAndCartAndStatus(orderRequest.getDishId(),
+                    orderRequest.getCartId(), false);
         } else {
-            LocalDateTime now = LocalDateTime.now();
-            user = userService.createGuestUser("guest" + now);
+            throw new AppException(ErrorCode.POSITION_OR_CART_NOT_FOUND);
         }
-        Dish dish = dishRepository.findById(orderRequest.getDishId()).orElseThrow(() -> new ResourceNotFoundException("Dish", "id", orderRequest.getDishId()));
 
-        if( orderRequest.getCartId() == null && orderRequest.getPositionId() != null){
-
-            if (orderRepository.existsByDishAndPositionAndOrderStatus(orderRequest.getDishId(), orderRequest.getPositionId(), "Considering")) {
-                Order existingOrder = orderRepository.findByDishAndPositionAndStatus(orderRequest.getDishId(), orderRequest.getPositionId(), false).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
-                if (dish.getServedAmount()< orderRequest.getQuantity() + existingOrder.getQuantity()){
-                    throw  new AppException(ErrorCode.ORDER_REACHED_MAX_QUANTITY);
-                }
-                existingOrder.setQuantity(existingOrder.getQuantity() + orderRequest.getQuantity());
-                existingOrder.setTotalPrice(existingOrder.getTotalPrice() + orderRequest.getQuantity() * existingOrder.getDish().getPrice());
-                existingOrder.setTimeServing(existingOrder.getTimeServing() + orderRequest.getQuantity() * existingOrder.getDish().getCookingTime());
-                orderRepository.save(existingOrder);
-                OrderResponse orderResponse = modelMapper.map(existingOrder, OrderResponse.class);
-                orderResponse.setUser(modelMapper.map(user, UserResponse.class));
-                messagingTemplate.convertAndSend("/topic/orders", orderResponse);
-                redisService.deleteAll(KEY);
-                return orderResponse;
+        if (optionalOrder.isPresent()) {
+            Order existingOrder = optionalOrder.get();
+            if (dish.getServedAmount() < orderRequest.getQuantity() + existingOrder.getQuantity()) {
+                throw new AppException(ErrorCode.ORDER_REACHED_MAX_QUANTITY);
             }
-        }else if(orderRequest.getCartId() != null && orderRequest.getPositionId() == null){
-
-            if (orderRepository.existsByDishAndPositionAndOrderStatus(orderRequest.getDishId(), orderRequest.getPositionId(), "Considering")) {
-                Order existingOrder = orderRepository.findByDishAndCartAndStatus(orderRequest.getDishId(), orderRequest.getCartId(), false).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
-                if (dish.getServedAmount()< orderRequest.getQuantity() + existingOrder.getQuantity()){
-                    throw  new AppException(ErrorCode.ORDER_REACHED_MAX_QUANTITY);
-                }
-                existingOrder.setQuantity(existingOrder.getQuantity() + orderRequest.getQuantity());
-                existingOrder.setTotalPrice(existingOrder.getTotalPrice() + orderRequest.getQuantity() * existingOrder.getDish().getPrice());
-                existingOrder.setTimeServing(existingOrder.getTimeServing() + orderRequest.getQuantity() * existingOrder.getDish().getCookingTime());
-                orderRepository.save(existingOrder);
-                OrderResponse orderResponse = modelMapper.map(existingOrder, OrderResponse.class);
-                orderResponse.setUser(modelMapper.map(user, UserResponse.class));
-                messagingTemplate.convertAndSend("/topic/orders", orderResponse);
-                redisService.deleteAll(KEY);
-                return orderResponse;
-            }
-
+            updateOrder(existingOrder, orderRequest, dish);
+            return existingOrder;
         }
-        else throw new AppException(ErrorCode.POSITION_OR_CART_NOT_FOUND);
+        return null;
+    }
 
+    private void updateOrder(Order existingOrder, OrderRequest orderRequest, Dish dish) {
+        existingOrder.setQuantity(existingOrder.getQuantity() + orderRequest.getQuantity());
+        existingOrder.setTotalPrice(existingOrder.getTotalPrice() + orderRequest.getQuantity() * dish.getPrice());
+        existingOrder.setTimeServing(existingOrder.getTimeServing() + orderRequest.getQuantity() * dish.getCookingTime());
+        orderRepository.save(existingOrder);
+        redisService.deleteAll(KEY);
+        messagingTemplate.convertAndSend("/topic/orders", modelMapper.map(existingOrder, OrderResponse.class));
+    }
 
-        if (dish.getServedAmount()< orderRequest.getQuantity()){
-            throw  new AppException(ErrorCode.QUANTITY_NOT_ENOUGH);
-        }
-
+    private Order createNewOrder(OrderRequest orderRequest, User user, Dish dish) {
         Order order = new Order();
         order.setUser(user);
-        if(orderRequest.getCartId() ==null && orderRequest.getPositionId() != null){
-            Position position = positonRepository.findById(orderRequest.getPositionId()).orElseThrow(() -> new ResourceNotFoundException("Position", "id", orderRequest.getPositionId()));
+
+        if (orderRequest.getCartId() == null && orderRequest.getPositionId() != null) {
+            Position position = positonRepository.findById(orderRequest.getPositionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Position", "id", orderRequest.getPositionId()));
             order.setPosition(position);
-        }
-        else if(orderRequest.getCartId() != null && orderRequest.getPositionId() == null){
-            Cart cart = cartRepository.findById(orderRequest.getCartId()).orElseThrow(() -> new ResourceNotFoundException("Cart", "id", orderRequest.getCartId()));
+        } else if (orderRequest.getCartId() != null && orderRequest.getPositionId() == null) {
+            Cart cart = cartRepository.findById(orderRequest.getCartId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cart", "id", orderRequest.getCartId()));
             order.setCart(cart);
+        } else {
+            throw new AppException(ErrorCode.POSITION_OR_CART_NOT_FOUND);
         }
-        else throw new AppException(ErrorCode.POSITION_OR_CART_NOT_FOUND);
+
         order.setDish(dish);
         order.setQuantity(orderRequest.getQuantity());
-        Long timeServing = dish.getCookingTime() * orderRequest.getQuantity();
-        Double totalPrice = dish.getPrice() * orderRequest.getQuantity();
-        order.setTimeServing(timeServing);
-        order.setTotalPrice(totalPrice);
+        order.setTimeServing(dish.getCookingTime() * orderRequest.getQuantity());
+        order.setTotalPrice(dish.getPrice() * orderRequest.getQuantity());
+        return orderRepository.save(order);
+    }
 
-        order = orderRepository.save(order);
-
+    private OrderResponse prepareOrderResponse(Order order, User user) {
         OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
+        orderResponse.setUser(modelMapper.map(user, UserResponse.class));
         messagingTemplate.convertAndSend("/topic/orders", orderResponse);
         redisService.deleteAll(KEY);
         return orderResponse;

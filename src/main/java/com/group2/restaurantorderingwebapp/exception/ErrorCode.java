@@ -54,8 +54,8 @@ public enum ErrorCode {
     FAVORITE_EXISTED(6001, "Favorite already exists", HttpStatus.BAD_REQUEST),
 
     QUANTITY_NOT_ENOUGH(7001, "Quantity not enough", HttpStatus.BAD_REQUEST),
-    SOMEONE_FASTER(7003, "Oops, someone is faster", HttpStatus.BAD_REQUEST)
-    ;
+    SOMEONE_FASTER(7003, "Oops, someone is faster", HttpStatus.BAD_REQUEST),
+    RESERVATION_ALREADY_EXISTS(7004, "Reservation already exists", HttpStatus.BAD_REQUEST),;
 
 
     private int code;
