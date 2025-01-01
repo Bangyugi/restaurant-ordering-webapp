@@ -45,6 +45,12 @@ public class OrderController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @PutMapping("/{orderId}")
+    public ResponseEntity<ApiResponse> updateOrder(@PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
+        ApiResponse apiResponse = ApiResponse.success(orderService.updateOrder(orderId, orderRequest));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
     @Operation(summary = "Get Order By Id", description = "Get Order By Id API")
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse> getById(@PathVariable Long orderId) {

@@ -41,4 +41,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByDishAndCartAndStatus(Long dishId, Long cartId, boolean b);
 
     Page<Order> findAllByCartAndStatus(Cart cart, boolean b, Pageable pageable);
+
+    List<Order> findAllByCartAndStatus(Cart cart, boolean b);
 }

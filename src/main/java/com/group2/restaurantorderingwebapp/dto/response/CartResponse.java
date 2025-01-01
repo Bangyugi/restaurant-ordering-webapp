@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,8 +14,8 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+//@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class CartResponse {
     private Long cartId;
-    private UserResponse user;
-    private Set<OrderResponse> orders;
+    private int elementAmount;
 }

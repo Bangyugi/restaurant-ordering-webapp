@@ -70,6 +70,7 @@ public class FavoriteServiceImpl  implements FavoriteService {
             PageCustom<FavoriteResponse> pageCustom = PageCustom.<FavoriteResponse>builder()
                     .pageNo(page.getNumber() + 1)
                     .pageSize(page.getSize())
+                    .totalElements(page.getTotalElements())
                     .totalPages(page.getTotalPages())
                     .pageContent(page.getContent().stream().map(favorite -> FavoriteResponse.builder()
                                 .favoriteId(favorite.getFavoriteId())

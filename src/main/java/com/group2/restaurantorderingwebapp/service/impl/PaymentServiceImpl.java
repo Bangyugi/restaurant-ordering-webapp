@@ -87,6 +87,8 @@ public class PaymentServiceImpl implements PaymentService {
         String vnSecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getSecretKey(), hashData);
         queryUrl += "&vnp_SecureHash=" + vnSecureHash;
         String paymentURl = vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
+
+
         return VnPayResponse.builder()
                 .code(200)
                 .message("Success")
@@ -137,7 +139,7 @@ public class PaymentServiceImpl implements PaymentService {
         userMap.remove(Integer.valueOf(vnp_TxnRef));
         orderMap.remove(Integer.valueOf(vnp_TxnRef));
 
-
+        redisService.deleteAll("order");
         redisService.deleteAll(KEY);
         return payment;
     }

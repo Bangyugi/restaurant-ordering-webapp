@@ -11,6 +11,8 @@ public interface OrderService  {
 
     OrderResponse createOrder(OrderRequest orderRequest);
 
+    OrderResponse updateOrder(Long orderId, OrderRequest orderRequest);
+
     String updatePaymentStatus(Long id);
 
     String confirmOrderStatus(Long id);

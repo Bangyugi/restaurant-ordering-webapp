@@ -39,5 +39,12 @@ public class CartController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Get Carts By User", description = "Get Carts By User")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ApiResponse> getCartByUserId(@PathVariable("userId") Long userId){
+        ApiResponse apiResponse = ApiResponse.success(cartService.getCartByUser(userId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
 
 }

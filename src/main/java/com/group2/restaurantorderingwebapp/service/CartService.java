@@ -13,4 +13,6 @@ public interface CartService {
     CartResponse getById(Long id);
 
     CartResponse updateById(Long id, CartRequest cartRequest);
+
+    CartResponse getCartByUser(Long userId);
 }

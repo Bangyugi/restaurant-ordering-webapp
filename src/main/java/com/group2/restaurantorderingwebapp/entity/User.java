@@ -21,7 +21,7 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Builder
-public class User extends BaseEntity implements UserDetails {
+public  class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -74,6 +74,9 @@ public class User extends BaseEntity implements UserDetails {
     @JsonIgnore
     @OneToMany (mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Favorite> favorites;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Cart cart;
 
     @Override
     public String getUsername() {

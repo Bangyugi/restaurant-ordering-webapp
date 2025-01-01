@@ -3,6 +3,7 @@ package com.group2.restaurantorderingwebapp.service.impl;
 import com.group2.restaurantorderingwebapp.dto.request.ChangePasswordRequest;
 import com.group2.restaurantorderingwebapp.dto.request.LoginRequest;
 import com.group2.restaurantorderingwebapp.dto.request.RegisterRequest;
+import com.group2.restaurantorderingwebapp.dto.response.CartResponse;
 import com.group2.restaurantorderingwebapp.dto.response.JwtAuthResponse;
 import com.group2.restaurantorderingwebapp.dto.response.UserResponse;
 import com.group2.restaurantorderingwebapp.entity.Cart;
@@ -129,8 +130,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         sendEmailService.sendEmail(user.getEmail(), user.getOtp());
         Cart cart = new Cart();
         cart.setUser(user);
-        cartRepository.save(cart);
-        return modelMapper.map(user,UserResponse.class);
+        cart = cartRepository.save(cart);
+        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+        userResponse.setCart(modelMapper.map(cart, CartResponse.class));
+
+        return userResponse;
     }
 
     private Integer generateOTP() {

@@ -28,4 +28,6 @@ public class Cart extends BaseEntity{
     @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Order> order = new HashSet<>();
 
+    private Long amount;
+
 }

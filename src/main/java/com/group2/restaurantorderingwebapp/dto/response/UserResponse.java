@@ -24,5 +24,6 @@ public class UserResponse {
     private String gender;
     private LocalDate Dob;
     private boolean status;
+    private CartResponse cart;
     private Set<Role> roles;
 }

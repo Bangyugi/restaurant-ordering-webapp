@@ -80,6 +80,7 @@ public class RankingServiceImpl implements RankingService {
             PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
                     .pageNo(page.getNumber() + 1)
                     .pageSize(page.getSize())
+                    .totalElements(page.getTotalElements())
                     .totalPages(page.getTotalPages())
                     .pageContent(page.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
                     .build();
@@ -114,6 +115,7 @@ public class RankingServiceImpl implements RankingService {
             PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
                     .pageNo(ranking.getNumber() + 1)
                     .pageSize(ranking.getSize())
+                    .totalElements(ranking.getTotalElements())
                     .totalPages(ranking.getTotalPages())
                     .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
                     .build();
@@ -183,6 +185,7 @@ public class RankingServiceImpl implements RankingService {
             PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
                     .pageNo(ranking.getNumber() + 1)
                     .pageSize(ranking.getSize())
+                    .totalElements(ranking.getTotalElements())
                     .totalPages(ranking.getTotalPages())
                     .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
                     .build();
@@ -203,6 +206,7 @@ public class RankingServiceImpl implements RankingService {
             PageCustom<RankingResponse> pageCustom = PageCustom.<RankingResponse>builder()
                     .pageNo(ranking.getNumber() + 1)
                     .pageSize(ranking.getSize())
+                    .totalElements(ranking.getTotalElements())
                     .totalPages(ranking.getTotalPages())
                     .pageContent(ranking.getContent().stream().map(result -> modelMapper.map(result, RankingResponse.class)).toList())
                     .build();

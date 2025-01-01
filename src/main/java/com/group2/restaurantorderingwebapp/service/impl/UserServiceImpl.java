@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
         roles.add(role);
         user.setRoles(roles);
         user.setPhoneNumber("guest"+ LocalDateTime.now().toString());
+        user.setEmail("guest"+ LocalDateTime.now().toString());
         user.setPassword(passwordEncoder.encode("guest123"));
         user.setFirstName("Guest");
         user.setLastName("User");

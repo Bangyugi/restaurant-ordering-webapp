@@ -126,6 +126,16 @@ public class OrderServiceImpl implements OrderService {
         return orderResponse;
     }
 
+    @Override
+    public OrderResponse updateOrder(Long orderId,OrderRequest orderRequest) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+        order.setQuantity(orderRequest.getQuantity());
+        order.setTotalPrice(orderRequest.getQuantity() * order.getDish().getPrice());
+        order.setTimeServing(orderRequest.getQuantity() * order.getDish().getCookingTime());
+        orderRepository.save(order);
+        redisService.deleteAll(KEY);
+        return modelMapper.map(order, OrderResponse.class);
+    }
 
     @Override
     public String updatePaymentStatus(Long id) {
@@ -210,6 +220,7 @@ public class OrderServiceImpl implements OrderService {
             PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
                     .pageNo(page.getNumber() + 1)
                     .pageSize(page.getSize())
+                    .totalElements(page.getTotalElements())
                     .totalPages(page.getTotalPages())
                     .pageContent(page.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
                     .build();
@@ -240,6 +251,7 @@ public class OrderServiceImpl implements OrderService {
             Page<Order> orders = orderRepository.findAllByPositionAndStatus(position, false, pageable);
             PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
                     .pageNo(orders.getNumber() + 1)
+                    .totalElements(orders.getTotalElements())
                     .pageSize(orders.getSize())
                     .totalPages(orders.getTotalPages())
                     .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
@@ -263,6 +275,7 @@ public class OrderServiceImpl implements OrderService {
             PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
                     .pageNo(orders.getNumber() + 1)
                     .pageSize(orders.getSize())
+                    .totalElements(orders.getTotalElements())
                     .totalPages(orders.getTotalPages())
                     .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
                     .build();
@@ -282,6 +295,7 @@ public class OrderServiceImpl implements OrderService {
             PageCustom<OrderResponse> pageCustom = PageCustom.<OrderResponse>builder()
                     .pageNo(orders.getNumber() + 1)
                     .pageSize(orders.getSize())
+                    .totalElements(orders.getTotalElements())
                     .totalPages(orders.getTotalPages())
                     .pageContent(orders.getContent().stream().map(order -> modelMapper.map(order, OrderResponse.class)).toList())
                     .build();
