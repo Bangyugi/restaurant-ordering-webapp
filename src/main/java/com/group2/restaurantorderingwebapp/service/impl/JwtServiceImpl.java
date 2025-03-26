@@ -41,6 +41,14 @@ public class JwtServiceImpl implements JwtService {
         return generateToken(new HashMap<>(),userDetails,time);
     }
 
+    private Claims extractAllClaims(String token){
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
     @Override
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails,Long time){
         return buildToken(extraClaims, userDetails, time);
@@ -79,14 +87,6 @@ public class JwtServiceImpl implements JwtService {
         return extractClaim(token,Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token){
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
 
     private Key getSignInKey(){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);

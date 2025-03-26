@@ -113,8 +113,32 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>docker</id>
+            <properties>
+                <spring.profiles.active>docker</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -131,6 +155,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>restaurant-ordering-webapp</finalName>
     </build>
 
 </project>
