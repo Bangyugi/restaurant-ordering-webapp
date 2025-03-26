@@ -1,23 +1,30 @@
 package com.group2.restaurantorderingwebapp;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 
 @SpringBootApplication
+@Slf4j
 public class RestaurantOrderingWebappApplication {
+
+    @Value("${environment.info}")
+    private String environmentInfo;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestaurantOrderingWebappApplication.class);
     public static void main(String[] args) {
         SpringApplication.run(RestaurantOrderingWebappApplication.class, args);
-        LOGGER.trace("doStuff needed more information - {}", "bang tran van dep trai");
-        LOGGER.debug("doStuff needed to debug - {}", "the boy savior");
-        LOGGER.info("doStuff took input - {}", "it's just a test");
-        LOGGER.warn("doStuff needed to warn - {}", "it's so beautiful");
-        LOGGER.error("doStuff encountered an error with value - {}", "hello kitty");
+    }
+
+    @PostConstruct
+    public void printEnvironmentInfo() {
+        log.info("environmentInfo: " + environmentInfo);
     }
 
 }
