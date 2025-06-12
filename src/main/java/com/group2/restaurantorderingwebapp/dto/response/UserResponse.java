@@ -1,5 +1,6 @@
 package com.group2.restaurantorderingwebapp.dto.response;
 
+import com.group2.restaurantorderingwebapp.entity.Cart;
 import com.group2.restaurantorderingwebapp.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,4 +26,5 @@ public class UserResponse {
     private LocalDate Dob;
     private boolean status;
     private Set<Role> roles;
+    private Cart cart;
 }
