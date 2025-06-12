@@ -75,6 +75,8 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany (mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Favorite> favorites;
 
+
+
     @Override
     public String getUsername() {
         return this.phoneNumber != null ? this.phoneNumber : this.email;
